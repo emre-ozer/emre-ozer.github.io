@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>Motivating Shannon entropy</title>
+    </head>
+    <body>
+        <h2>Motivating Shannon entropy</h2>
+        <p>How can we define <i>information</i>? One approach is to identify information with the way we transmit it: some sequence of characters.</p>
+        <p>Consider a set (alphabet) \(A = \{ x_1, \ldots, x_n \} \) and suppose we form some sequence out of the elements (letters). Let's say that for the sequences that are of interest to us, each letter occurs with probability \(p_i\) with no correlation between letters.</p>
+        <p>Our end goal is to associate the information contained in a sequence by the number of bits required to identify that sequence. To make progress, we need to ask: How many sequences are there of length \( T \)?</p>
+        <p>Let's take \(T\) to be large enough such that each letter appears \(Tp_i\) times in the sequence. The number of sequences \(K\) is given by the number of different orderings of \(Tp_i \) number of \(x_i \)'s,</p>
+        $$
+        K = {T\choose Tp_1}{T-Tp_1\choose Tp_2}\cdots{T-\cdots-Tp_{n-1}\choose Tp_n} = \frac{T!}{\prod_{i=1}^n (Tp_i)!}.
+        $$
+        <p>Now, let's index each sequence with a binary sequence. Clearly, for large \(K\) we will need \(\log_2 (K) \) digits. In terms of the \( p_i \):</p>
+        $$
+        \log_2 (K) = \log_2 (T!) - \sum_{i=1}^n \log_2 ((Tp_i)!).
+        $$
+        <p>With Stirling's approximation,</p>
+        $$
+        \log_2(K) \approx T\log_2 T - T \log_2 e - \sum_{i=1}^n ( Tp_i\log_2(Tp_i) - Tp_i \log_2 e ) = -T \sum_{i=1}^n p_i \log_2 p_i.
+        $$
+        <p>As stated above, this is the number of bits required to identify a sequence of length \(T \), which we identify as the information contained in said sequence. This is Shannon information.</p>
+        <p>The above argument is applied similarly in context of statistical physics to obtain the Gibbs entropy, which has the same form as Shannon entropy (information) except \(\log_2 \) is replaced with \( \ln \), which amounts to measuring information in different units.</p>
+    </body>
+</html>

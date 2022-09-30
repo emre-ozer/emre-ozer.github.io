@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>Determinant about identity</title>
+    </head>
+    <body>
+        <h2>Determinant about identity</h2>
+        <p>The following pops up in many places, one example being the proof of Liouville’s theorem in Hamiltonian mechanics. There, it arises from the Jacobian associated with an infinitesimal time evolution.</p>
+        <p>For notational convenience, I will denote equality up to linear order in \( \epsilon \) with \( \approx \).</p>
+        <p><b>Claim.</b> Given any matrix \( M \), one has
+        $$
+        \mathrm{det}(I + \epsilon M) = 1 + \epsilon \mathrm{Tr}(M) + \mathcal{O}(\epsilon^2) \approx 1 + \epsilon \mathrm{Tr}(M),
+        $$
+        where \( I \) is the identity matrix.</p>
+        <p><i>Proof 1.</i> There are many ways to proceed, the purest is to start with the following definition of the determinant:
+            $$
+            \mathrm{det}(M) = \sum_{\pi \in S_n} \mathrm{sgn}(\pi) \prod_{i=1}^n M_{i\pi(i)},
+            $$
+        where \( S_n \) is the symmetry group of order \( n \), and \(\mathrm{sgn}(\pi) \) equals \( +1\) for even and \( -1 \) for odd permutations.
+        </p>
+        <p>It follows that</p>
+        $$
+        \mathrm{det}(I + \epsilon M) = \sum_{\pi \in S_n} \mathrm{sgn}(\pi) \prod_{i=1}^n (\delta_{i\pi(i)} + \epsilon M_{i\pi(i)})
+        $$
+        <p>Here comes the clever bit: suppose \(\pi\) is not the identity element in \(S_n\). Then, there exists at least two terms with \(i \neq \pi(i)\), which implies the product has two factors of \(\epsilon\) as the corresponding \(\delta_{i\pi(i)}\) evaluate to zero. Since we only work to linear order in \(\epsilon\), we can ignore all permutations except for the identity! The result follows:</p>
+        $$
+        \mathrm{det}(I + \epsilon M) \approx \prod_{i=1}^n (1 + \epsilon M_{ii}) \approx 1 + \epsilon \sum_{i=1}^n M_{ii} = 1 + \epsilon \mathrm{Tr}(M).
+        $$
+        <p><i>Proof 2.</i> An easier proof is to work in terms of the eigenvalues, in terms of which the determinant and trace take the forms:
+        $$
+        \mathrm{det}(M) = \prod_i \lambda_i, \qquad \mathrm{Tr}(M) = \sum_i \lambda_i.
+        $$
+        The result directly follows:
+        $$
+        \mathrm{det}(1 + \epsilon M) = \prod_i (1 + \epsilon \lambda_i) \approx 1 + \epsilon \sum_i \lambda_i = 1 + \epsilon \mathrm{Tr}(M).
+        $$
+    </p>
+    </body>
+</html>

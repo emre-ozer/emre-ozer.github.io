@@ -1,0 +1,17 @@
+body {
+    margin: auto;
+    font-family: "Computer Modern Serif";
+    max-width: 800px;
+    padding: 10px;
+}
+h1,h2 {
+       text-align: center;
+}
+a {
+    color: brown;
+}
+li {
+    margin: 10px 0;
+}
+color: hsl(0, 5%, 10%);
+background-color: hsl(210, 20%, 98%);
