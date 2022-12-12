@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>AdS/CFT</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>AdS/CFT correspondence</h2>
+        <p>The anti-de Sitter/conformal field theory (AdS/CFT) correspondence, and more generally holography, lies at the centre of a significant portion of recent progress in the subject of quantum gravity. Here is my attempt at explaining the correspondence without removing technicalities.</p>
+        <p>Although the current understanding of gauge/gravity duality has been generalised beyond string theory, the first example of such a correspondence arose from a string theory embedding [6]. Such constructions involve Dp-branes, which are the locus of open string endpoints extending in \( p \) spatial dimensions. In string theory, D-branes are dynamical objects in their own right and are non-perturbative from the worldsheet perspective.</p>
+        <p>The construction of [6] considers \( N \) coincident D3-branes in type IIB string theory on flat spacetime. The theory consists of closed strings in the bulk and open strings ending on the D3 branes. States in the string spectrum have masses separated by \( \sim 1/\alpha' \), where \( \alpha' \) is the string constant and is proportional to the inverse string tension. The low energy limit amounts to taking \( \alpha' \to 0 \), where only the massless ground states in the spectrum remain accessible. An effective action has the schematic form</p>
+        <div class="equation">$$
+        S_{\text{eff}} \sim S_{\text{bulk}} + S_{\text{brane}} + S_{\text{int}}.
+        $$</div>
+        <p>\( S_{\text{bulk}} \) is type IIB supergravity plus corrections. \( S_{\text{int}} \) is proportional to \( \alpha'^{2} \) and vanishes in the low energy limit, hence the open and closed string sectors decouple. Finally, \( S_{\text{brane}} \) corresponds to \( \mathcal{N} = 4 \) Super Yang-Mills (SYM) theory with gauge group \( SU(N) \). The Yang-Mills coupling \( g_{YM} \) is related to the string coupling \( g_{s} \) as \( g_{YM}^{2} = 2\pi g_{s} \).</p>
+        <p>The above is a string worldsheet description of the D-brane system, and so must admit a well defined perturbative expansion. For \( N \) coincident branes, the effective loop expansion parameter for open strings is \( g_{s} N \), hence the SYM description is valid in the \( g_{s} N \ll 1 \) regime.</p>
+        <p>In the complementary \( g_{s} N \gg 1 \) regime, the appropriate description is the supergravity solution for \( N \) parallel D3 branes [7]. In this picture, a large number of branes source a gravitational field, curving the spacetime. The metric has a length scale \( L \sim g_{s} N \alpha'^{2} \), and it is a valid description for \(  g_{s} \to 0 \) and \( \alpha' / L^{2} \ll 1 \). Taking the low energy \( \alpha' \to 0 \) limit yields ten dimensional flat space and a near horizon AdS\( _{5} \times S^{5} \) regions that are decoupled from each other.</p>
+        <p>The two descriptions differ in where they are located in the parameter space, they describe the same theory at different \( g_{s}N \). Identifying the two as dual descriptions gives:</p>
+        <div class="equation">$$
+        \mathcal{N} = 4 \text{ SYM with gauge group SU(N)} \equiv \text{Type IIB string theory on AdS$ _{5} \times S^{5} $}.
+        $$</div>
+        <p>This is a holographic duality as the field theory is lower dimensional. There is a sense in which the field theory can be thought of as living on the asymptotic boundary of the bulk spacetime [8], since the boundary values of bulk fields act as sources for corresponding dual CFT operators. The CFT and the gravitational theory are often referred to as the "boundary" and the "bulk" respectively.</p>
+        <p>In its most general form, the AdS/CFT correspondence states that any CFT on \( \mathbb{R} \times S^{d-1} \) is equivalent to quantum gravity on asymptotically AdS\( _{d+1} \times M \) spacetime, with \( M \) some compact manifold [9]. The vacuum of the CFT is dual to empty AdS geometry, and thermal CFT states are either dual to thermal AdS or AdS-Schwarzschild spacetimes. Most CFT states aren't expected to correspond to semiclassical geometries, and it is an open question to determine which ones do.</p>
+        <h3>The special case of AdS2/CFT1</h3>
+        <p>The case of AdS\( _{2} \)/CFT\( _{1} \) is special, with the decoupling limit being qualitatively different due to a gap in the spectrum [10]. The fundamental issue arises because a 0-brane has no transverse spatial volume, and so the length scale which governs the scaling of the excitation energy must be provided by the UV scale. Hence, in the decoupling limit only the ground state survives.</p>
+        <p>Black p-branes obey the scaling \( E \sim V_{p} T^{p+1} \) where \( V_{p} \) is the transverse volume, and \( T \) the Hawking temperature. Noting the semiclassical description breaks down at \( E \sim T \), for p-branes in the \( V_{p} \to \infty \) limit it never breaks down for finite \( E \). For a 0-brane, however, the scaling is \( E \sim \ell_{P} T^{2} \), which in the \( \ell_{P} \to 0 \) limit can only describe the ground state.</p>
+        <p>Correspondingly, the CFT\( _{1} \) has a vanishing Hamiltonian and so it is a theory of a constraint. Note, however, that even this correspondence is not trivial as it can be used to relate the extremal entropy to the degeneracy of microstates \cite{Sen:2008vm}.</p>
+        <p>To describe more than just the ground state of asymptotically AdS\( _{2} \) gravity, one should avoid taking the complete decoupling limit. In this case, the asymptotically AdS part of the geometry is deformed, and one needs to insert an IR cutoff on the geometry [10]. The resulting (Euclidean) dynamics is universally given by Jackiw-Teitelboim (JT) gravity:</p>
+        <div class="equation">$$
+        I = -\frac{S_{0}}{2\pi}\bigg[ \frac{1}{2} \int_{\mathcal{M}} \sqrt{g} R + \int_{\partial \mathcal{M}} \sqrt{h} K \bigg] - \frac{1}{2} \int_{\mathcal{M}} \sqrt{g} \phi (R+2) - \int_{\partial \mathcal{M}} \sqrt{h} \phi K.
+        $$</div>
+        <p>The first two terms are the usual Einstein-Hilbert and Gibbons-Hawking-York terms of the gravitational action. In \( d=2 \), together these terms are topological and are equal to the Euler characteristic \( 2\pi\chi \) of the surface. The next two terms are non-trivial due to the dilaton \( \phi \). The Euclidean gravitational path integral is organised in a genus expansion, in powers of \( e^{S_{0}(1-2g)} \). The first few terms are a disk, a torus with a hole, a double torus with a hole and so on. Higher genus topologies are non-perturbative in the gravitational coupling.</p>
+        <p>The landmark result by Saad, Stanford and Shenker [11] showed that this Euclidean gravitational path integral is equivalent to a random matrix (RM) integral of the form:</p>
+        <div class="equation">$$
+        \mathcal{Z} = \int dH e^{-L \mathrm{Tr}[ V(H)]}
+        $$</div>
+        <p>This is an integral over random \( L \times L \) hermitian matrices \( H \) which are interpreted as the Hamiltonian of the boundary theory dual to JT gravity. The JT gravity partition function \( Z(\beta) = \mathrm{Tr} e^{-\beta H} \) is then an observable of this matrix <i>ensemble</i>. \( V(H) \) is called the matrix potential. The remarkable result is that, in an appropriate large \( L \) limit called the double scaling limit, the JT partition function coincides to all orders in \( e^{-S_{0}} \) with its random matrix counterpart.</p>
+        <h3>References</h3>
+        <p>[6] Juan Martin Maldacena. “The Large N limit of superconformal field theories and supergrav- ity”. In: Adv. Theor. Math. Phys. 2 (1998), pp. 231–252. doi: 10.1023/A:1026654312961. arXiv: hep-th/9711200.</p>
+        <p>[7] Eric D’Hoker and Daniel Z. Freedman. “Supersymmetric gauge theories and the AdS / CFT correspondence”. In: Theoretical Advanced Study Institute in Elementary Particle Physics (TASI 2001): Strings, Branes and EXTRA Dimensions. Jan. 2002, pp. 3–158. arXiv: hep- th/0201253.</p>
+        <p>[8] Edward Witten. “Anti-de Sitter space and holography”. In: Adv. Theor. Math. Phys. 2 (1998), pp. 253–291. doi: 10.4310/ATMP.1998.v2.n2.a2. arXiv: hep-th/9802150.</p>
+        <p>[9] Daniel Harlow. “TASI Lectures on the Emergence of Bulk Physics in AdS/CFT”. In: PoS TASI2017 (2018), p. 002. doi: 10.22323/1.305.0002. arXiv: 1802.01040 [hep-th].</p>
+        <p>[10] G ́abor S ́arosi. “AdS2 holography and the SYK model”. In: PoS Modave2017 (2018), p. 001. doi: 10.22323/1.323.0001. arXiv: 1711.08482 [hep-th].</p>
+        <p>[11] Phil Saad, Stephen H. Shenker, and Douglas Stanford. “JT gravity as a matrix integral”. In: (Mar. 2019). arXiv: 1903.11115 [hep-th].</p>
+        </article>
+    </body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>Variation of operator valued functions</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Variation of operator valued functions</h2>
+        Consider some operator valued function \(F(\hat{A}) \), and its variation with respect to \( \hat{A} \):
+        <div class="equation">$$
+        \delta F(\hat{A}) = F(\hat{A}+\delta \hat{A}) - F(\hat{A}).
+        $$</div>
+        It is implicit that we work to linear order in \( \delta \hat{A} \). This quantity is nontrivial because arbitrary variations \( \delta \hat{A} \) in general won't commute with \( \hat{A} \). Supposing \( F \) is analytic, we can express it as a power series:
+        <div class="equation">
+            $$
+            F(\hat{A} + \delta \hat{A}) = \sum_{n=0}^{\infty} a_n (\hat{A} + \delta\hat{A})^n = \sum_{n=0}^{\infty} \big(\hat{A}^n + \hat{A}^{n-1}(\delta\hat{A}) + \hat{A}^{n-2}(\delta\hat{A})\hat{A} + \cdots + (\delta\hat{A})\hat{A}^{n-1}\big).
+            $$
+        </div>
+        We can read off the variation:
+        <div class="equation">
+            $$
+            \delta F(\hat{A}) = \sum_{n=0}^{\infty} (\hat{A}^{n-1}(\delta\hat{A}) + \hat{A}^{n-2}(\delta\hat{A})\hat{A} + \cdots + (\delta\hat{A})\hat{A}^{n-1}).
+            $$
+        </div>
+        This is a complicated expression, however life becomes much simpler if one considers instead the variation of the trace of \( F(\hat{A}) \):
+        <div class="equation">
+            $$
+            \mathrm{Tr}\big(\delta F(\hat{A})\big) = \mathrm{Tr}\bigg( \sum_{n=0}^{\infty} a_n n \hat{A}^{n-1} \delta \hat{A} \bigg) = \mathrm{Tr}\big(F'(\hat{A})\delta\hat{A}\big),
+            $$
+        </div>
+        where we used the cyclic property of the trace.
+    </article>
+    </body>
+</html>

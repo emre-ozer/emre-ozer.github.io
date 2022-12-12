@@ -2,21 +2,82 @@
 <html lang="en" dir="ltr">
     <head>
         <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <meta charset="utf-8">
         <link rel="stylesheet" href="fonts/Serif/cmun-serif.css"></link>
         <link rel="stylesheet" href="style.css">
         </link>
-        <title>Page Test</title>
+        <title>emre-ozer</title>
     </head>
     <body>
-        <h2>GitHub Pages Testing</h2>
-        <p>Here is a link to another page: <a href="https://emre-ozer.github.io//page1/" title="Page 1">Page 1</a>.</p>
-        <p><a href="https://github.com/emre-ozer">My GitHub</a></p>
-        <h3>Bitesize Maths</h3>
-        <ul>
-            <li><a href="bsm1/index.html" title="Bitesize Maths 1">Determinant about identity</a> </li>
-            <li><a href="bsm2/index.html" title="Bitesize Maths 2">Motivating Shannon entropy</a></li>
+        <h1><a class="head" href="emre-ozer.github.io">emre-ozer.github.io</a></h1>
+    <article class="content">
+        <h2 style="font-size: 30px;">Emre Özer</h2>
+        <p>I am a PhD student (2020-ongoing) in the Theoretical High Energy Physics (THEP) group at the University of Toronto. Previously, I did my BSc in Theoretical Physics at Imperial College London (2017-2020).</p>
+        <p>This page contains my contact information, research interests, a collection of writings on various topics (mostly in lecture note format) and shorter article-like pages on my personal interests.</p>
+        <h3>Table of Contents</h3>
+        <ul id="toc">
+            <li><a href="#Contact">Contact Information</a></li>
+            <li><a href="#Research">My Research</a></li>
+            <li><a href="#Writings">Collection of Writings</a></li>
+            <li><a href="#NAS">Numerical Analysis and Simulations</a></li>
+            <li><a href="#BSM">Bitesize Maths</a></li>
         </ul>
+        <h2 id="Contact">Contact</h2>
+        <p><b>Email:</b> <code>emre dot ozer at mail dot utoronto dot ca</code></p>
+        <p><b>Github:</b> <a href="https://github.com/emre-ozer">https://github.com/emre-ozer</a></p>
+        <h2 id="Research">My Research</h2>
+        <p>I am interested in the semiclassical to quantum transition of    gravity. Semiclassical gravity refers to a construction where the usual framework of quantum field theory (e.g. the standard model) is placed on a curved spacetime background. This is a very accurate model of systems in which the energies are not too large, or the curvature of spacetime isn't extreme, or there are no black holes. My research focuses on understanding the breakdown of this description.
+        <p>In the context of AdS/CFT, this breakdown can be formulated as the emergence of spacetime, or a transition from a geometric to a non-geometric phase. From the perspective of von Neumann algebras, this is the series of transitions from Type III to Type II to Type I algebras.</p>
+        <p>Here are some of my technical summaries on related topics:</p>
+        <ul>
+            <li><a href="myresearch1/index.html">Black holes and information</a></li>
+            <li><a href="myresearch2/index.html">AdS/CFT correspondence</a></li>
+            <li><a href="myresearch3/index.html">Holographic entanglement entropy</a></li>
+        </ul>
+        <h2 id="Writings">Collection of Writings</h2>
+        <p>Various notes I've taken over the years, mostly incomplete and still work in progress. There is no claim of originality, I made sure to reference any sources used. The links open the pdf files.</p>
+        <ul>
+            <li><a href="latexnotes/bec.pdf" title="The Physics of Bose-Einstein Condensation">The Physics of Bose-Einstein Condensation</a> (Expository article)</li>
+            <li><a href="latexnotes/bsc_thesis.pdf" title="BSc Thesis">A Comparison of Discrete and Continuum Simulations of the Das Sarma-Tamborenea Growth Model</a> (BSc thesis)</li>
+            <li><a href="latexnotes/classical_mechanics.pdf" title="Classical Mechanics">Classical Mechanics</a></li>
+            <li><a href="latexnotes/methods.pdf" title="Mathematical Methods">Mathematical Methods</a></li>
+            <li><a href="latexnotes/nonlinear_dynamics.pdf" title="Nonlinear Dynamics">Nonlinear Dynamics</a></li>
+            <li><a href="latexnotes/qm_summary.pdf" title="Quantum Mechanics Summary Notes">Quantum Mechanics Summary Notes</a></li>
+            <li><a href="latexnotes/special_relativity.pdf" title="Special Relativity">Special Relativity</a></li>
+            <li><a href="latexnotes/prob_basics.pdf" title="Basics of Probability">Basics of Probability</a></li>
+            <li><a href="latexnotes/thermodynamics.pdf" title="Thermodynamics">Thermodynamics</a></li>
+            <li><a href="latexnotes/variation_of_determinant.pdf" title="Variation of Matrix Determinant">Variation of Matrix Determinant</a></li>
+        </ul>
+        <h2 id="NAS">Numerical Analysis & Simulations</h2>
+        <p>These are a series of pages I've written, mostly out of personal interest and as future reference for myself. The structure will always be as follows: pages on theory (including explicit mathematical derivations), followed by my (mostly Python) implementations where I attempt to explain each code block.</p>
+        <p>Subjects I'm currently working on: fast Fourier transform (Cooley-Tukey algorithm), Runge-Kutte methods for solving systems of coupled ODEs, symplectic integrators, numerical analysis of chaos and Lyapuonv exponents.</p>
+        <h3>Numerical Integration</h3>
+        <ul>
+            <li><a href="nas1/index.html" title="Newton-Cotes method - theory">Newton-Cotes method - theory</a></li>
+            <li><a href="lpi/index.html" title="Lagrange polynomial interpolation">Lagrange polynomial interpolation</a></li>
+            <li><a href="nci/index.html" title="Newton-Cotes method - implementation">Newton-Cotes method - implementation</a></li>
+        </ul>
+        <!--<h3>Fast Fourier Transform</h3>
+        <ul>
+            <li><a href="fftct/index.html" title="Cooley-Tukey algorithm">Cooley-Tukey algorithm</a></li>
+            <li><a href="soundtex/index.html" title="The texture of sound">The texture of sound</a></li>
+        </ul>-->
+        <h2 id="BSM">Bitesize Maths</h2>
+        <p>These are a series of short pieces on various maths topics. They are too short to be included as part of any lecture notes, but are nevertheless interesting to me.</p>
+        <h3>Miscellaneous</h3>
+        <ul>
+            <li><a href="bsm1/index.html" title="Determinant about identity">Determinant about identity</a> </li>
+            <li><a href="bsm2/index.html" title="Motivating Shannon entropy">Motivating Shannon entropy</a></li>
+            <li><a href="bsm3/index.html" title="Variation of operator valued functions">Variation of operator valued functions</a></li>
+            <li><a href="bsm4/index.html" title="Principal value of 1/x">Principal value of \(1/x\)</a></li>
+        </ul>
+        <h3>Differential geometry</h3>
+        <p>The best book I've read on differential geometry is by far Nakahara's "Geometry Topology and Physics". Here, I intend to give concise definitions for core concepts, doing my best to add personal comments and examples, in particular motivating various definitions which may seem at first to be arbitrary.</p>
+        <ul>
+            <li><a href="bsm-dg-1/index.html" title="Topological spaces">Topological spaces</a></li>
+        </ul>
+    </article>
     </body>
 </html>

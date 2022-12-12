@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>Holographic entanglement entropy</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Holographic entanglement entropy</h2>
+        <p>Entanglement entropy plays a central role in holography [12], and is particularly relevant for the information problem. For static spacetimes in the classical limit, the entanglement entropy is captured holographically through the Ryu-Takayanagi (RT) prescription [13]. It states that the entanglement entropy associated with a CFT subregion \( A \) is given by the area of the minimal bulk surface \( \tilde{A} \) homologous to \( A \), measured in Planck units:</p>
+        <div class="equation">$$
+            S(A) = \min \frac{1}{4G_{N}} \text{Area}(\tilde{A}).
+        $$</div>
+        <p>Generalisation to non-static spacetimes is given by the Hubeny-Ryu-Takayanahi (HRT) prescription [14]. Both prescriptions can be derived via path integral and replica trick methods [15,16].</p>
+        <p>Entanglement within the AdS/CFT context is also closely relevant for the "ER=EPR" proposal [17], which roughly states that quantum entanglement on the boundary theory builds up, or connects, the bulk geometry. The motivating example for this is the thermofield double state:</p>
+        <div class="equation">
+            $$
+            \ket{\text{TFD}} \sim \sum_{i} e^{-\beta E_{i} / 2} \ket{E_{i}} \otimes \ket{E_{i}},
+            $$
+        </div>
+        <p>which is a particular purification of a Gibbs state and is dual to the maximally extended AdS-Schwarzschild spacetime. Even though any individual state in the sum corresponds to a disconnected geometry, an entangled superposition yields a connected spacetime.</p>
+        <p>A related construction considers a one-parameter family of CFT states \( \ket{\Psi_{\lambda}} \), with each member corresponding to a semiclassical dual geometry. The family is such that the entanglement entropy between a region and its compliment monotonically decreases with \( \lambda \). Geometrically, through the RT formula we deduce the dual spacetimes are such that the area of the dividing surface decreases monotonically, and so the spacetime eventually "pinches off" and becomes disconnected once there is no more entanglement.</p>
+        <h3>Quantum extremal surfaces</h3>
+        <p>Leading order quantum corrections to the HRT formula gives the quantum extremal surface (QES) prescription [18]:</p>
+        <div class="equation">
+            $$
+            S(A) = \min \text{ext}\bigg[ \frac{\text{Area}(\tilde{A})}{4G_{N}} + S_{\text{bulk}}(\tilde{A}) \bigg]
+            $$
+        </div>
+        <p>where \( S_{\text{bulk}}(\tilde{A}) \) is the von Neumann entropy of the bulk quantum fields to one side of \( \tilde{A} \). The prescription instructs to extremise the geometric area term together with the entropy of bulk fields.</p>
+        <p>The QES prescription has been used to successfully recover the Page curve from an evaporating AdS black hole [19,20]. The setups either directly or indirectly use JT gravity coupled to a reservoir as either the gravity theory on AdS\( _{2} \) [19] or through dimensional reduction of the near horizon region of a higher dimensional asymptotically flat black hole [20]. In both setups, the entropy of the radiation is computed through the so called ``island formula'':</p>
+        <div class="equation">
+            $$
+            S_{\text{rad}} = \min \text{ext} \bigg[ \frac{\text{Area}(\partial I)}{4 G_{N}} + S_{\text{bulk}}(\Sigma_{\text{rad}} \cup \Sigma_{I}) \bigg],
+            $$
+        </div>
+        <p>where, the island \( I \) is a spacelike bulk surface disconnected from the boundary. \( \Sigma_{I} \) is any Cauchy slice in the causal wedge of \( I \), and \( \Sigma_{\text{rad}} \) is a Cauchy slice of the reservoir.</p>
+        <p>At early times, it is found that \( I = \emptyset \) is the minimal QES and so the entropy of the radiation is simply \( S_{\text{bulk}}(\Sigma_{\text{rad}}) \), agreeing with the usual semiclassical calculation. At late times, however, a phase transition between the minimal QESs takes place and a surface residing just inside the black hole horizon becomes minimal, saturating the entropy at roughly \( \sim S_{\text{Bek-Haw}} \) which decreases monotonically as the black hole evaporates. Hence, the Page curve is recovered.</p>
+        <p>The phase transition in the minimal QES is caused by the growing entanglement between the radiation and the black hole interior, as more Hawking pairs are created. At sufficiently late times, the gradient of \( S_{\text{bulk}}(\Sigma_{\text{rad}} \cup \Sigma_{I}) \) is able to compete with the gradient of the area term, shifting the location of the QES. The island in the late time phase includes almost all of the black hole interior, but never extends beyond the horizon.</p>
+        <p>The key difference of the island formula from the usual QES prescription is the inclusion of disconnected slices. This can be justified through a sum over topologies in the Euclidean gravitational path integral [21,22,23]. Topologies that geometrically connect replica copies are referred to as "replica wormholes". The phase transition in the minimal QES can be understood as a phase transition in the dominant saddle point geometry.</p>
+        <p>As a final comment, the expectation that the entropy follows a Page curve relies on the assumption that the black hole and its radiation, as subsystems, factorise in the Hilbert space of the quantum gravitational theory. There are claims that this factorisation fails, and that in gravity all information is stored holographically at the boundary and hence the fine-grained entropy is expected not to follow a Page curve [26]. Further investigations of the Hilbert space factorisation issue would likely need to make use of the algebraic QFT framework, applied to theories with diffeomorphism invariance [27].</p>
+        <h3>References</h3>
+        <p>[12] Mukund Rangamani and Tadashi Takayanagi. Holographic Entanglement Entropy. Vol. 931. Springer, 2017. doi: 10.1007/978-3-319-52573-0. arXiv: 1609.01287 [hep-th].</p>
+        <p>[13] Shinsei Ryu and Tadashi Takayanagi. “Holographic derivation of entanglement entropy from AdS/CFT”. In: Phys. Rev. Lett. 96 (2006), p. 181602. doi: 10.1103/PhysRevLett.96. 181602. arXiv: hep-th/0603001.</p>
+        <p>[14] Veronika E. Hubeny, Mukund Rangamani, and Tadashi Takayanagi. “A Covariant holo- graphic entanglement entropy proposal”. In: JHEP 07 (2007), p. 062. doi: 10.1088/1126- 6708/2007/07/062. arXiv: 0705.0016 [hep-th].</p>
+        <p>[15] Aitor Lewkowycz and Juan Maldacena. “Generalized gravitational entropy”. In: JHEP 08 (2013), p. 090. doi: 10.1007/JHEP08(2013)090. arXiv: 1304.4926 [hep-th].</p>
+        <p>[16] Xi Dong, Aitor Lewkowycz, and Mukund Rangamani. “Deriving covariant holographic entan- glement”. In: JHEP 11 (2016), p. 028. doi: 10.1007/JHEP11(2016)028. arXiv: 1607.07506 [hep-th].</p>
+        <p>[17] Juan Maldacena and Leonard Susskind. “Cool horizons for entangled black holes”. In: Fortsch. Phys. 61 (2013), pp. 781–811. doi: 10.1002/prop.201300020. arXiv: 1306.0533 [hep-th].</p>
+        <p>[18] Netta Engelhardt and Aron C. Wall. “Quantum Extremal Surfaces: Holographic Entangle- ment Entropy beyond the Classical Regime”. In: JHEP 01 (2015), p. 073. doi: 10.1007/ JHEP01(2015)073. arXiv: 1408.3203 [hep-th].</p>
+        <p>[19] Ahmed Almheiri et al. “The entropy of bulk quantum fields and the entanglement wedge of an evaporating black hole”. In: JHEP 12 (2019), p. 063. doi: 10.1007/JHEP12(2019)063. arXiv: 1905.08762 [hep-th].</p>
+        <p>[20] Geoffrey Penington. “Entanglement Wedge Reconstruction and the Information Paradox”. In: JHEP 09 (2020), p. 002. doi: 10.1007/JHEP09(2020)002. arXiv: 1905.08255 [hep-th].</p>
+        <p>[21] Ahmed Almheiri et al. “Replica Wormholes and the Entropy of Hawking Radiation”. In: JHEP 05 (2020), p. 013. doi: 10.1007/JHEP05(2020)013. arXiv: 1911.12333 [hep-th].</p>
+        <p>[22] Geoff Penington et al. “Replica wormholes and the black hole interior”. In: JHEP 03 (2022), p. 205. doi: 10.1007/JHEP03(2022)205. arXiv: 1911.11977 [hep-th].</p>
+        <p>[23] Donald Marolf and Henry Maxfield. “Observations of Hawking radiation: the Page curve and baby universes”. In: JHEP 04 (2021), p. 272. doi: 10.1007/JHEP04(2021)272. arXiv: 2010.06602 [hep-th].</p>
+        <p>[24] Hong Zhe Chen et al. “Quantum Extremal Islands Made Easy, Part I: Entanglement on the Brane”. In: JHEP 10 (2020), p. 166. doi: 10.1007/JHEP10(2020)166. arXiv: 2006.04851 [hep-th].</p>
+        <p>[26] Suvrat Raju. “Failure of the split property in gravity and the information paradox”. In: Class. Quant. Grav. 39.6 (2022), p. 064002. doi: 10.1088/1361-6382/ac482b. arXiv: 2110.05470 [hep-th].</p>
+        <p>[27] Thomas Faulkner et al. “Snowmass white paper: Quantum information in quantum field theory and quantum gravity”. In: 2022 Snowmass Summer Study. Mar. 2022. arXiv: 2203. 07117 [hep-th].</p>
+        </article>
+    </body>
+</html>

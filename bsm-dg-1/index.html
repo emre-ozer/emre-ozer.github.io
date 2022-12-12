@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>Topological spaces</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Topological spaces</h2>
+        <p>Given a set \( X \) and a collection \( \mathcal{T} = \{ U_{i} \mid i \in I \} \) of subsets of \( X \), the pair \( (X, \mathcal{T}) \) is a <b>topological space</b> if \( \mathcal{T} \) satisfies:</p>
+        <ol>
+            <li>\( \emptyset, X \in \mathcal{T} \)</li>
+            <li>Given any (possibly infinite) subcollection \( J \subset I \), the family \( \{ U_{j} \mid j\in J \} \) satisfies \( \cup_{j\in J} U_{j} \in \mathcal{T} \)</li>
+            <li>Given any <i>finite</i> subcollection \( K \subset I \), the family \( \{ U_{k} \mid k \in K \} \) satisfies \( \cap_{k\in K} U_{k} \in \mathcal{T} \).</li>
+        </ol>
+        <p>The \( U_{i} \in \mathcal{T} \) are called <b>open sets</b>, and \( \mathcal{T} \) is said to give <b>topology</b> to \( X \). Condition (2) says that the union of any number (possibly infinite) of open sets is an open set. Condition (3) says the intersection of any finite number of open sets is an open set.</p>
+        <p><b>Example</b> (Discrete topology). Define \( \mathcal{T} \) as the collection of <i>all subsets</i> of \( X \). (1) is clearly satisfied. (2) is satisfied because the union of any number of subsets is itself a subset. (3) is satisfied again because the intersection of any number of subsets is a subset.</p>
+        <p>This topology is too general to be useful (at least from a physical perspective).</p>
+        <p><b>Example</b> (Trivial topology). Let \( \mathcal{T} = \{ \emptyset, X \} \). Since their union is \( X \), and their intersection is \( \emptyset \) this gives a topology to \( X \).</p>
+        <p>This topology is too restrictive to be useful.</p>
+        <p><b>Example</b> (Usual topology). There has to be a happy middle between the discrete and trivial topologies, where we include not too many and not too few subsets. To find such topologies, we need to specify \( X \) further. The best starting point is \( X \in \mathbb{R} \).</p>
+        <p>Let \( \mathcal{T} \) be the set of all open intervals \( (a,b) \) and their unions. Note also that \( a,b \) can be \( \pm \infty \). Let's check that \( \mathcal{T} \) is indeed a topology:</p>
+        <ol>
+            <li>Taking \( a=b \) gives \( \emptyset \) (note: if we want to strictly impose \( a < b \) when we define open intervals, we can always include \( \emptyset \) in \( \mathcal{T} \) by hand). Taking \( a = -\infty \) and \( b = \infty \) gives \( \mathbb{R} \in \mathcal{T} \).</li>
+            <li>All possible unions of all open intervals are included in \( \mathcal{T} \). This covers all possibilities by construction.</li>
+            <li>The intersection of two open intervals is again an open interval (this should be obvious). The extension to any finite collection is simply induction.</li>
+        </ol>
+        <p>The usual topology in \( \mathbb{R}^{n} \) can be defined by the product \( (a_{1},b_{1}) \times \cdots \times (a_{n}, b_{n}) \) and their unions.</p>
+        <h3>Why only finite subcollections?</h3>
+        <p>Here is a question: <i>Why did we restrict condition (3) to finite subcollections?</i> The answer is that intersections of infinite subcollections are too restrictive, as they allow one to isolate measure zero elements in \( \mathbb{R}^{n} \). In particular, consider the usual topology on \( \mathbb{R} \). One can then take the following infinite subcollection:</p>
+        <div class="equation">
+            $$
+            \{ U_{k} \mid k \in K \subset I \} = \bigg\{ \Big(a-\frac{1}{n}, a+\frac{1}{n}\Big) \mid n \in \mathbb{N} \bigg\}.
+            $$
+        </div>
+        <p>The intersection \( \cap_{k\in K} U_{k} \) is defined through a limiting process, and it gives the element \( a \in \mathbb{R} \). Let's prove this.</p>
+        <p><b>Claim:</b> Given collection \( K \) with elements \( U_{k} \) as above, we have</p>
+        <div class="equation">
+            $$
+            \bigcap_{k \in K} U_{k} = a.
+            $$
+        </div>
+        <p><i>Proof:</i> First, note that \( a \in U_{k} \) for all \( k \in K \), and so all we have to show is that there aren't any other elements in this intersection. But this is very easy to see, given any \( x \in \mathbb{R} \) with \( |x-a| = \delta > 0 \), we choose \( n > 1/\delta \) and find an open set \( U_{k} \) that doesn't contain \( x \). </p>
+        <p>Since \( a \) was arbitrary, one can repeat this construction for all elements of \( \mathbb{R} \). The usual topology does not include isolated elements of \( \mathbb{R} \), and so it is no longer a valid topology. To make it valid, one would need to include all elements of \( \mathbb{R} \) and all of their unions. This gives the discrete topology. Hence, we see that without the finiteness restriction in (3), the usual topology would reduce to the discrete topology.</p>
+        </article>
+    </body>
+</html>

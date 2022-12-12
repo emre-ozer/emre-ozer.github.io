@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>Lagrange polynomial interpolation</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Lagrange polynomial interpolation</h2>
+        <p>Consider the following problem: given a set of nodes \( \{ x_k \} \) and a corresponding set of values \( \{ y_k \} \), find the lowest order interpolating polynomial \( L(x) \). An interpolating polynomial is defined through the set of relations:</p>
+        <div class="equation">$$
+        L(x_i) = y(x_i)
+        $$</div>
+        <p>for all nodes \( x_i \in \{ x_k \} \).</p>
+        <p>The solution is very straightforward if one first considers the simpler problem: given a node \( x_i \in \{ x_k \} \), what is the lowest order polynomial \( \ell_i(x) \) such that:</p>
+        <div class="equation">$$
+        \ell_i(x_k) = \begin{cases} 1 & k = i, \\ 0 & k \neq i.\end{cases}
+        $$</div>
+        <p>Such polynomials are called the <i>Lagrange basis</i>, as any interpolating polynomial can be decomposed into a weighted sum of them. Explicitly, it is given by</p>
+        <div class="equation">$$
+        L(x) = \sum_{i=0}^{n} y_i \ell_i(x) \quad\Rightarrow\quad L(x_i) = y(x_i) \quad\forall i.
+        $$</div>
+        <p>The expressions for the basis polynomials are as follows:</p>
+        <div class="equation">$$
+        \ell_i(x) = \prod_{j \neq i} \frac{(x-x_j)}{(x_i - x_j)},
+        $$</div>
+        <p>arranged such that they have zeros at \(x_j\) for \( j \neq i \), and normalised such that \( \ell_i(x_i) = 1 \).</p>
+        <h3>Equivalence to Newton-Cotes methods</h3>
+        <p>Upon closer inspection, it turns out that Newton-Cotes integration is nothing but Lagrange interpolation in disguise. This should be intuitive, as in both cases we evaluate the function on a set of nodes and minimize errors using polynomials.</p>
+        <p>On the Newton-Cotes side, the number of nodes used is determined by the error order, which arises from going further in the Taylor expansion. On the interpolation side, the order of the interpolating polynomial is determined by the number of nodes.</p>
+        <p>To be more explicit, the map between the two is given through:</p>
+        <div class="equation">$$
+        \int_a^b f(x) dx \approx \int_a^b L(x)dx = \sum_{i=0}^m f_i \int_a^b \ell_i(x) dx = \sum_{i=0}^m \alpha_i f_i.
+        $$</div>
+        <p>It only remains to show that the coefficients \( \alpha_i \) determined from the basis polynomial integrals match the Newton-Cotes coefficients.</p>
+        <p>Recall, the coefficients in the Newton-Cotes method are determined through</p>
+        <div class="equation">
+            \begin{align*}
+	1 &= \alpha_0 + \dots + \alpha_m \\
+	\frac{1}{2} &= \alpha_0 (0/m) + \alpha_1 (1/m) + \dots + \alpha_m (m/m) \\
+	\vdots& \\
+	\frac{1}{m+1} &=	\alpha_0 (0/m)^{m} + \alpha_1 (1/m)^{m} + \dots + \alpha_m (m/m)^{m},
+        \end{align*}
+        </div>
+        Here, the nodes are set to be \( x_k = k / m \) These equations follow directly from:
+        <div class="equation">$$
+        \frac{1}{n+1} = \int_0^1 x^n dx = \sum_{i=0}^m \Big( \frac{i}{m} \Big)^n \int_0^1 \ell_i(x) dx.
+        $$</div>
+        The only thing left to show is the independence of the basis integrals on the integration range (noting to also shift the nodes accordingly). I think this would be a good exercise.
+    </article>
+    </body>
+</html>

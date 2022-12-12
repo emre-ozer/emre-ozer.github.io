@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../style.css">
+        </link>
+        <title>Black holes and information</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Black holes and information</h2>
+        <p>There is a reason black holes are almost always mentioned alongside quantum gravity. They give an example of a macroscopic system (so macroscopic in fact, that the supermassive black hole in the centre of the Milky Way galaxy has a diameter tens of times larger than our Sun), for which the semiclassical description breaks down. This break down arises in very long time scales, and is a consequence of Hawking radiation.</p>
+        <p>It was shown by Hawking that leading order quantum effects make black holes emit thermal radiation [1, 2]. The backreaction on the metric causes the event horizon to shrink, and eventually disappear. The process can be roughly understood as the creation of an entangled pair of excitations (Hawking pair) near the horizon. One of the pairs escapes to infinity, constituting the radiation, and the other falls through the horizon. The fundamental issue lies in the fact that since the pairs are pulled out of the vacuum, they contain no information about the black hole interior.</p>
+        <p>The thermal nature of the radiation creates tension with unitarity if one considers a black hole formed from the collapse of a pure state. The (fine-grained) von Neumann entropy of such a state is identically zero. A naive factorisation of the Hilbert space into the black hole and its radiation would then require \(S_{\text{rad}} = S_{\text{black hole}} \) at all times during the evaporation [3]. The entropy of the radiation monotonically increases with time, yet the fine-grained black hole entropy is bounded above by its coarse-grained Bekenstein-Hawking entropy, \(S_{\text{Bek-Haw}}\), which is given by its area measured in Planck units. Hence, there always exists a time at which \(S_{\text{rad}} = S_{\text{Bek-Haw}}\), after which the black hole can no longer purify its radiation, leading to the conclusion that time evolution must be non-unitary.</p>
+        <p>Hawking’s original calculation, as outlined above, is not precise enough [4]. Through statistical arguments, it can be shown that in an \( e^S \) dimensional Hilbert space, the average deviation in the expectation value of a projection operator between the microcanonical ensemble and a randomly chosen pure state is of order \(e^{-S}\). Roughly speaking, to argue that the von Neumann entropy is non-zero one must keep track of corrections of order \(e^{-S}\), and for the black hole \(S \propto 1/G \) so these corrections are non-perturbative in the gravitational coupling.</p>
+        <p>Refinements of the information paradox apply the strong sub-additivity inequality to a newly created Hawking pair and the previously emitted radiation to show that, at each step of the radiation the entropy grows by an \(\mathcal{O}(1)\) amount that cannot be compensated by small corrections [5]. This line of argument proposes that smooth horizons can’t exist in quantum gravity.</p>
+        <p>A complete resolution of the information problem should be able to identify precisely the mistake in Hawking’s semiclassical calculation and the microscopic physical mechanism that encodes the information in the radiation. Such a resolution will necessarily have to keep track of non-perturbative physics. In the big picture, the hope is that a precise understanding of how the semiclassical description breaks down will further our general understanding of quantum gravity. Black holes provide an explicit example of such a break down.</p>
+        <h3>References</h3>
+        <p>[1] S. W. Hawking. “Particle creation by black holes”. In: Communications in Mathematical Physics 43.3 (1975), pp. 199–220. doi: 10.1007/BF02345020. url: https://doi.org/10. 1007/BF02345020.</p>
+        <p>[2] S. W. Hawking. “Breakdown of predictability in gravitational collapse”. In: Phys. Rev. D 14 (10 Nov. 1976), pp. 2460–2473. doi: 10.1103/PhysRevD.14.2460. url: https://link.aps. org/doi/10.1103/PhysRevD.14.2460.</p>
+        <p>[3] Don N. Page. “Information in black hole radiation”. In: Phys. Rev. Lett. 71 (1993), pp. 3743– 3746. doi: 10.1103/PhysRevLett.71.3743. arXiv: hep-th/9306083.</p>
+        <p>[4] Suvrat Raju. “Lessons from the information paradox”. In: Phys. Rept. 943 (2022), pp. 1–80. doi: 10.1016/j.physrep.2021.10.001. arXiv: 2012.05770 [hep-th].</p>
+        <p>[5] Samir D. Mathur. “The Information paradox: A Pedagogical introduction”. In: Class. Quant. Grav. 26 (2009). Ed. by A. M. Uranga, p. 224001. doi: 10.1088/0264-9381/26/22/224001. arXiv: 0909.1038 [hep-th].</p>
+        </article>
+    </body>
+</html>
