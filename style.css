@@ -53,3 +53,18 @@ img {
     list-style: none;
     padding-left: 20px;
 }
+hr {
+    padding: 0;
+    margin: 0;
+    border: none;
+    height: 2px;
+    /* Set the hr color */
+    color: #333;  /* old IE */
+    background-color: #333;  /* Modern Browsers */
+  }
+h2 {
+    margin-bottom:4px;
+}
+h3 {
+    margin-bottom: 4px;
+}

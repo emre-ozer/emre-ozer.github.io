@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Black-Scholes equation</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Black-Scholes equation</h2><hr>
+        <p>Here, I will present three independent derivations of the Black-Scholes equation, assuming the risk-neutral pricing principle without proof. First, I will show how the equation emerges in the continuum limit of a binomial tree. The next method makes use of stochastic calculus and a simple no-arbitrage argument. Finally, I present the martingale pricing method, which is the simplest but requires a lot of formal mathematical background.</p>
+        <p><b>Claim.</b> Let \(D(S,t)\) be a derivative whose value depends on an underlying \(S\) and time \(t\). Assume the underlying follows geometric Brownian motion with drift \(\mu\) and volatility \(\sigma\), which defines the stochastic process </p>
+        <div class="equation">
+            $$
+            \frac{dS}{S} = \mu dt + \sigma dW,
+            $$
+        </div>
+        <p>where \(W\) is a Brownian motion. Let the risk-free interest rate be \(r\). Then, the unique arbitrage-free price of the derivative follows the Black-Scholes equation:</p>
+        <div class="equation">
+            $$
+            \newcommand\pdv[2]{\frac{\partial#1}{\partial#2}}
+            rD = \pdv{D}{t} + rS\pdv{D}{S} + \frac{1}{2} \sigma^2 S^2 \pdv{^2 D}{S^2}.
+            $$
+        </div>
+        <p><b>Risk-neutral pricing:</b> we state without proof that the unique arbitrage-free price of a derivative is given by the expectation value of the derivative under the risk-neutral probability measure. Let us define this measure now.</p>
+        <p>Let \(B_t\) be the money-market account continuously compounding at rate \(r\), so that \(B_t = e^{rt}B_0 \). We measure all values with respect to this account, which is equivalent to discounting or using present values. The risk-neutral probability measure is defined so that the expectation value of any tradable asset \(A_t\), measured with respect to \(B_t\), is constant:</p>
+        <div class="equation">
+            $$
+            \mathbb{E}_{RN}\left(\frac{A_t}{B_t}\right) = \mathbb{E}_{RN}\left(\frac{A_{t'}}{B_{t'}}\right) \quad\Leftrightarrow\quad \mathbb{E}_{RN}(A_t) = e^{r(t-t')} \mathbb{E}_{RN}(A_{t'}).
+            $$
+        </div>
+        <h3>Binomial tree: continuum limit</h3><hr>
+        <p>Consider a simple two-state world in which the stock evolves geometrically with each time step:</p>
+        <div class="equation">
+            $$
+            S_t \to S_{t+\Delta t} \in \{ e^u S_t \;, \;e^{-d}S_t \} \quad \Leftrightarrow \quad \log S_t \to \log S_{t+\Delta t} \in \{ \log S_t + u \;,\; \log S_t - d \},
+            $$
+        </div>
+        <p>where \(u,d > 0\). Suppose the up move occurs with probability \(p\), which in the risk-neutral measure is fixed to</p>
+        <div class="equation">
+            $$
+            p = \frac{e^{r\Delta t} - e^{-d}}{e^{u} - e^{-d}}.
+            $$
+        </div>
+        <p>First, we must determine a well-defined scaling limit as \(\Delta t \to 0\), clearly \(u, d\) must scale with \(\Delta t \) in a particular way. So, let us define a collection of random variables \( X_t \) taking values \(u\) and \(-d\) with probabilities \(p\) and \(1 -p \). Next, consider the \(N\)-step evolution:</p>
+        <div class="equation">
+            $$
+            \log S_{t+\Delta t} = \log S_t + X_t \quad \Rightarrow\quad \log S_T = \log S_0 + \sum_{i=1}^N X_i,
+            $$
+        </div>
+        <p>where \( T = N / \Delta t \) and \(X_i\) are iid. The central limit theorem implies</p>
+        <div class="equation">
+            $$
+            \log S_T = \log S_0 + \sqrt{N}\sigma_X \mathcal{N}(0,1) + N \mu_X \quad \Rightarrow\quad S_T = S_0 \exp\bigg[ \frac{T}{\Delta t}\mu_X + \sqrt{\frac{T}{\Delta t}}\sigma_X \mathcal{N}(0,1) \bigg],
+            $$
+        </div>
+        <p>where \( \mathcal{N}(0,1) \) is a random variable drawn from the normal distribution with unit variance. Clearly, to have a well-defined non-trivial continuum limit the quantities \(\tilde{\mu} = \mu/\Delta t \) and \(\tilde{\sigma} = \sigma/\sqrt{\Delta t} \) both have to be finite. This determines implicitly the scalings of \(u, d\) with \(\Delta t\).</p>
+        <p>First, consider \( \mu = \mathbb{E}(X) = p u - (1-p) d \). Let us define rescaled jumps \(u = \Delta t^\nu \tilde{u} \), \(d = \Delta t^\nu \tilde{d} \). With some algebra, one obtains:</p>
+        <div class="equation">
+            $$
+            (\tilde{u} + \tilde{d})\tilde{\mu} = r(\tilde{u} + \tilde{d}) - \frac{1}{2}\Delta t^{2\nu - 1} (\tilde{u}\tilde{d}^2 + \tilde{u}^2\tilde{d}).
+            $$
+        </div>
+        <p>A non-trivial relation between rescaled quantities is recovered when \(\nu = 1/2\). A choice of \(\nu < 1/2 \) gives \(|\tilde{\mu}| \to \infty \), and so the model jumps too violentlly and blows up. A choice of \(\nu > 1/2\) yields \(\tilde{\mu} = r\) for all choices of \(\tilde{u}, \tilde{d}\), so the model jumps too little and becomes trivial.</p>
+        <p>Hence, our ansatz is \( u = \sqrt{\Delta t} \tilde{u} \) and \(d = \sqrt{\Delta t} \tilde{d}\). One can check that this choice also yields a finite \(\tilde{\sigma}\):</p>
+        <div class="equation">
+            $$
+            \tilde{\sigma} = \sqrt{\frac{\tilde{u}\tilde{d}^2 + \tilde{u}^2\tilde{d}}{\tilde{u} + \tilde{d}}} \quad \Rightarrow \quad \tilde{\mu} = r - \frac{1}{2} \tilde{\sigma}^2.
+            $$
+        </div>
+        <p>This relationship between \(\tilde{\mu}\) and \(\tilde{\sigma}\) is a key result. With this, the expression for \(S_T\) reads:</p>
+        <div class="equation">
+            $$
+            S_T = S_0 \exp\left[ rT - \frac{1}{2}\tilde{\sigma}^2 T + \sqrt{T}\tilde{\sigma}\mathcal{N}(0,1) \right].
+            $$
+        </div>
+        <p>Note that this depends only on the rescaled variance, not on the rescaled drift. This is a property of the risk-neutral measure and a key element of option pricing: real-world drift of underlying assets don't affect the arbitrage-free option prices.</p>
+        <p>It is easy to recover the Black-Scholes equation at this point, simply consider the small change in \(\log S \):</p>
+        <div class="equation">
+            $$
+            \Delta \log S = \left(r- \frac{1}{2} \tilde{\sigma}\right)\Delta t + \sqrt{\Delta t} \tilde{\sigma}\mathcal{N}(0,1).
+            $$
+        </div>
+        <p>Consider the expected value of the change in \(D(S,t)\) under the risk-neutral measure:</p>
+        <div class="equation">
+            \begin{align*}
+            \mathbb{E}[\Delta D] &= \pdv{D}{t}\Delta t + \pdv{D}{\log S} \mathbb{E}[\Delta \log S] + \frac{1}{2} \pdv{^2 D}{\log S^2} \mathbb{E}[(\Delta \log S)^2] \\
+            &= \pdv{D}{t}\Delta t + S\pdv{D}{S} \left(r- \frac{1}{2} \tilde{\sigma}\right)\Delta t + \frac{1}{2} \left( S\pdv{D}{S} + S^2\pdv{^2 D}{S^2} \right) \tilde{\sigma}^2 \Delta t \\
+            &= \pdv{D}{t}\Delta t + rS\pdv{D}{S}\Delta t + \frac{1}{2} \tilde{\sigma}^2 S^2 \pdv{^2 D}{S^2} \Delta t,
+            \end{align*}
+        </div>
+        <p>where I used \( \mathbb{E}[\mathcal{N}(0,1)^2] = 1 \). By risk-neutral pricing, the expected change in the value of \(D\) is \(r\Delta t D\), and so we recover the Black-Scholes equation.</p>
+        <h3>Stochastic calculus</h3><hr>
+        <p>This method is much more straightforward, provided one is familiar with Ito's lemma.</p>
+        <p><b>Ito's lemma:</b> Consider a stochastic process \(X_t\), and a function \(f = f(t,X)\). The process followed by \(f\) is:</p>
+        <div class="equation">
+            $$
+            df = \pdv{f}{t}dt + \pdv{f}{X}dX + \frac{1}{2}\pdv{^2f}{X^2} dX^2, \quad \text{where} \quad dt^2 = 0,\quad dt dW = 0, \quad dW^2 = dt.
+            $$
+        </div>
+        <p>Appliying Ito's lemma to a derivative \(D\) on an underlying following geometric Brownian motion yields:</p>
+        <div class="equation">\begin{align*}
+            dD &= \pdv{D}{t}dt + \pdv{D}{S} dS + \frac{1}{2} \pdv{^2 D}{S^2} dS^2 \\
+            &= dt\left[ \pdv{D}{t} + \pdv{D}{S} S\mu + \frac{1}{2}S^2\sigma^2\pdv{^2 D}{S^2} \right] + S\sigma \pdv{D}{S}dW.
+            \end{align*}</div>
+        <p>Now, let us consider instead a portfolio without a stochastic component. Consider the portfolio long one unit of \(D\) and \(\alpha\) units of the underlying \(S\). The change in the value of this portfolio due to movements of the underlying and elapsed time (fixing our holding \(\alpha\) constant) is:</p>
+        <div class="equation">
+            $$
+            d(D + \alpha S) = dt\left[ \pdv{D}{t} + \pdv{D}{S} S\mu + \alpha \mu S + \frac{1}{2}S^2\sigma^2\pdv{^2 D}{S^2} \right] + S\sigma \left(\pdv{D}{S} + \alpha \right)dW.
+            $$
+        </div>
+        <p>To cancel the stochastic component, we can fix \(\alpha = -\partial D / \partial S\), obtaining a portfolio which grows at some constant rate. No-arbitrage requires this rate to equal the risk-free interest rate, hence we obtain:</p>
+        <div class="equation">
+            $$
+            r(D - \pdv{D}{S} S) = \pdv{D}{t} + \frac{1}{2}S^2\sigma^2\pdv{^2 D}{S^2},
+            $$
+        </div>
+        <p>which is the Black-Scholes equation.</p>
+        <h3>Martingale pricing</h3><hr>
+        <p>We need a series of mathematical facts about martingales and measure changes on the space of Brownian motions.</p>
+        <p><b>Fact 1 (Martingales):</b> a process \(X_t\) is a martingale if for all \(t,s \) with \(t > s\), the conditional expectation of \(X_t\) in filtration \(\mathcal{F}_s\) is \(X_s\):</p>
+        <div class="equation">
+            $$
+            \mathbb{E}(X_t \mid \mathcal{F}_s) = X_s.
+            $$
+        </div>
+        <p>This is essentially the statement that information available time \(s\) contains no information about the future process \( X_t - X_s \). For our purposes, we can simply state that driftless processes of the general form</p>
+        <div class="equation">
+            $$
+            dX_t = \varphi(X_t) dW_t
+            $$
+        </div>
+        <p>are martingales.</p>
+        <p><b>Fact 2 (Martingale pricing):</b> there can be no arbitrage if all tradable assets in a market are martingales. This is easy to see in zero-interest case: suppose all tradable assets are martingales. The expected of any portfolio equals today's value, and so if the portfolio has value \( P=0 \) initially, the existence of a non-zero probability of \(P>0\) at a later time implies the existence of a non-zero probability of \(P<0\) at that same time.</p>
+        <p>In the non-zero interest case, one denominates all assets in zero-coupon riskless bonds, effectively working with the discounted values. Therefore, denoting the riskless bond as \(B_t\), one demands for all tradable assets \(A_t\) that the process \( A_t/B_t \) is a martingale.</p>
+        <p><b>Fact 3 (Measure change):</b> a measure change on the space of Brownian paths is equivalent to changing the drift of the Brownian motion. That is, given some Brownian motion \(W_t\) under some measure, there exists an equivalent measure under which the process \(\tilde{W}_t = W_t - \nu t\) is a Brownian motion, for a reasonable function \(\nu\).</p>
+        <p>Combining these facts, let us consider a stock following geometric Brownian motion in the real-world measure and a riskless bond with continuously compounding interest rate \(r\):</p>
+        <div class="equation">
+            $$
+            dS = \mu S dt + \sigma S dW, \quad dB = r B dt.
+            $$
+        </div>
+        <p>The process for \(S/B\) follows from Ito's lemma:</p>
+        <div class="equation">
+            $$
+            d\left(\frac{S}{B}\right) = (\mu - r) \frac{S}{B} dt + \sigma \frac{S}{B} dW.
+            $$
+        </div>
+        <p>Now, we change to the risk-neutral measure under which the process above is driftless, which is equivalent to setting \( \mu = r \). Hence, under the risk-neutral measure the stock follows the process</p>
+        <div class="equation">
+            $$
+            dS = r S dt + \sigma S dW.
+            $$
+        </div>
+        <p>Now, consider a derivative \(D\). Under the risk-neutral measure, it follows the process</p>
+        <div class="equation">
+            $$
+            dD = \left( \pdv{D}{t} + rS\pdv{D}{S} + \frac{1}{2}\sigma^2 S^2 \pdv{^2D}{S^2} \right) dt + \sigma S \pdv{D}{S}dW
+            $$
+        </div>
+        <p>As before we demand that \(D/B \) is a martingale:</p>
+        <div class="equation">
+            $$
+            d\left(\frac{D}{B}\right) = \frac{1}{B}(dD - rD dt) \quad\Rightarrow\quad dD - \sigma S \pdv{D}{S}dW = rDdt,
+            $$
+        </div>
+        <p>hence recovering the Black-Scholes equation.</p>
+    </article>
+    </body>
+    
+</html>

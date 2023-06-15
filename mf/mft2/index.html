@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Pricing of vanilla options</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Pricing of vanilla options</h2><hr>
+        <p>I will present the simplest way to obtain the prices for vanilla put and call options in the Black-Scholes modes. The trick is to use expectation pricing with optimal choice of numeraire.</p>
+        <p><b>Choice of numeraire:</b> recall that no-arbitrage is equivalent to demanding all assets denominated with respect to the riskless bond are martingales. Instead of requiring for all assets that \( A/B \) is a martingale, one can equivalently measure values in units of stock instead of the bond, and demand that all \(A/S\) are martingales. The process that one denominates with respect to is called the numeraire, and one is free to choose it.</p>
+        <h3>Call option</h3><hr>
+        <p>A vanilla call option on stock \(S\) with strike \(K\) and expiry \(T\) is defined by the pay-off at \(T\):</p>
+        <div class="equation">
+            $$
+            C(t=T) = (S_T-K) 1_{S_T\geq K},            
+            $$
+        </div>
+        <p>where \(1_{S_T\geq K}\) is the indicator function. Let us denote the numeraire as \(N\). Then, the martingale property implies:</p>
+        <div class="equation">
+            $$
+            \frac{C_0}{N_0} = \mathbb{E}\left[\frac{C_T}{N_T}\right] = \mathbb{E}\left[\frac{(S_T-K) }{N_T}1_{S_T\geq K}\right] = \mathbb{E}\left[\frac{S_T }{N_T}1_{S_T\geq K}\right] - \mathbb{E}\left[\frac{K}{N_T}1_{S_T\geq K}\right],
+            $$
+        </div>
+        <p>where all expectations are taken in the appropriate risk-neutral measure. The key point here is that we can treat the two terms separately and choose different numeraires for each. First, consider the second term. As \(K\) is a constant, it makes sense to choose the riskless bond as numeraire. In the bond numeraire risk-neutral measure, the stock follows the process:</p>
+        <div class="equation">
+            $$
+            \frac{dS}{S} = rdt + \sigma dW \quad\Rightarrow\quad S_T = S_0 \exp\left( (r-\frac{1}{2}\sigma^2)T + \sigma\sqrt{T}\mathcal{N}(0,1) \right),
+            $$
+        </div>
+        <p>where we took an Ito integral to obtain \(S_T\). The contribution of the second term then takes the form:</p>
+        <div class="equation">
+            $$
+            C(t=0) \supset \frac{B_0}{B_T} K \mathbb{E}[1_{S_T\geq K}] = Ke^{-rT} \int_{-\infty}^{\infty} \frac{dx}{\sqrt{2\pi}} e^{-x^2/2} 1_{S_T\geq K} = Ke^{-rT} \int_{x^*}^{\infty} \frac{dx}{\sqrt{2\pi}} e^{-x^2/2}
+            $$
+        </div>
+        <p>where</p>
+        <div class="equation">
+            $$
+            S_0 \exp\left( (r-\frac{1}{2}\sigma^2)T + \sigma\sqrt{T}x^* \right) = K \quad\Leftrightarrow\quad x^* = \frac{\log(K/S_0) - (r-\sigma^2/2) T}{\sigma\sqrt{T}}
+            $$
+        </div>
+        <p>In terms of the cumulative normal distribution function \(\Phi(x)\), we have</p>
+        <div class="equation">
+            $$
+            C(t=0) \supset  Ke^{-rT} \Phi(-x^*), \quad \text{where} \quad \Phi(x) = \int_{-\infty}^{x}\frac{dy}{\sqrt{2\pi}} e^{-y^2/2}.
+            $$
+        </div>
+        <p>For the first term, we choose \(S_t\) as numeraire, and to determine the risk-neutral measure we demand \(B/S\) to be a driftless process. In the real-world measure:</p>
+        <div class="equation">
+            $$
+            d\left(\frac{B}{S}\right) = \frac{dB}{S} + B d\left(\frac{1}{S}\right) + dB d\left(\frac{1}{S}\right) = \frac{B}{S} [rdt -\mu dt - \sigma dW + \sigma^2 dt],
+            $$
+        </div>
+        <p>and therefore in the risk-neutral measure:</p>
+        <div class="equation">
+            $$
+            \frac{dS}{S} = (r+\sigma^2)dt + \sigma dW \quad\Rightarrow\quad S_T = S_0 \exp( (r + \frac{1}{2}\sigma^2)T + \sigma\sqrt{T}\mathcal{N}(0,1) ).
+            $$
+        </div>
+        <p>Evaluating the first expectation yields the following contribution to the call price:</p>
+        <div class="equation">
+            $$
+            C(t=0) \supset S_0 \mathbb{E}[1_{S_T\geq K}] = S_0 \int_{-\infty}^{\infty} \frac{dx}{\sqrt{2\pi}} e^{-x^2/2} 1_{S_T\geq K} = S_0 \int_{y^*}^{\infty} \frac{dx}{\sqrt{2\pi}} e^{-x^2/2} = S_0 \Phi(-y^*)
+            $$
+        </div>
+        <p>where</p>
+        <div class="equation">
+            $$
+            y^* = \frac{\log(K/S_0) - (r+\sigma^2/2) T}{\sigma\sqrt{T}}
+            $$
+        </div>
+        <p>Putting everything together, one obtains:</p>
+        <div class="equation">
+            $$
+            C(t=0) = S_0 \Phi(a_+) - e^{-rT} K \Phi(a_-), \quad \text{where} \quad a_{\pm} = \frac{\log(S_0/K) + (r \pm \sigma^2 /2) T}{\sigma \sqrt{T}}.
+            $$
+        </div>
+        <h3>Put option</h3><hr>
+        <p>This is straightforward to deduce from the call option, the pay-off at expiry is:</p>
+        <div class="equation">
+            $$
+            P(t=T) = (K-S_T) 1_{K\geq S_T},
+            $$
+        </div>
+        <p>and so</p>
+        <div class="equation">
+            $$
+            P(t=0) = e^{-rT} K \Phi(-a_-) - S_0 \Phi(-a_+).
+            $$
+        </div>
+    </article>
+    </body>
+    
+</html>
