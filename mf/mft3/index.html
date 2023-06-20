@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Vanilla Greeks</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Vanilla Greeks</h2><hr>
+        <p>Here I present a derivation of all vanilla call Greeks, and show how to obtain the put Greeks from put-call parity. Recall the Black-Scholes call price (with dividend rate \(d\)):</p>
+        <div class="equation">
+            $$
+            C = e^{-dT} S \Phi(a_+) - e^{-rT} K \Phi(a_-), \quad \text{where} \quad a_{\pm} = \frac{\log(S/K) + (r - d \pm \sigma^2 /2) T}{\sigma \sqrt{T}},
+            $$
+        </div>
+        <p>and where \( \Phi(x) = (2\pi)^{-1/2} \int_{-\infty}^x e^{-u^2/2} du \) is the cumulative normal function.</p>
+        <p>The put price is similar:</p>
+        <div class="equation">
+            $$
+            P = e^{-rT} K \Phi(-a_-) - e^{-dT}S \Phi(-a_+).
+            $$
+        </div>
+        <p>Finally, recall the put-call parity: the prices of a call option \(C\), put option \(P\) and a forward contract\(F\), with the same expiry and strike, are related as follows:</p>
+        <div class="equation">
+            $$
+            C - P = F, \quad \text{where} \quad F = e^{-dT} S - e^{-rT} K.
+            $$
+        </div>
+        <hr>
+        <p><b>Call Delta:</b> \( \Delta_C \equiv \partial C / \partial S \). Simply differentiate, noting that \(a_{\pm}\) have \(S\) dependence.</p>
+        <div class="equation">
+            \begin{align*}
+            \newcommand\pdv[2]{\frac{\partial#1}{\partial#2}}
+            \Delta_C &= \pdv{}{S}\left[ e^{-dT}S \Phi(a_+) - e^{-rT} K \Phi(a_-) \right] \\
+            &= e^{-dT} \Phi(a_+) + e^{-dT} S \Phi'(a_+) \pdv{a_+}{S} - e^{-rT} K \Phi'(a_-) \pdv{a_-}{S} \\
+            &= e^{-dT} \Phi(a_+) + \frac{e^{-dT} e^{-a_+^2 / 2}}{\sigma\sqrt{2\pi T}} - \frac{K}{S} \frac{e^{-rT} e^{-a_-^2 / 2}}{\sigma\sqrt{2\pi T}},
+            \end{align*}
+        </div>
+        <p>where we used \(\Phi'(x) = \displaystyle\frac{e^{-x^2/2}}{\sqrt{2\pi}}\) and \(\displaystyle\pdv{a_{\pm}}{S} = \frac{1}{S\sigma\sqrt{T}}\).</p>
+        <p><b>Put Delta:</b> \(\Delta_P \equiv \partial P / \partial S\). Differentiating the put-call parity with respect to \(S\) yields:</p>
+        <div class="equation">
+            $$
+            \pdv{C}{S} - \pdv{P}{S} = \pdv{F}{S} \quad \Rightarrow \quad \Delta_C - \Delta_P = e^{-dT} \quad \Leftrightarrow \quad \Delta_P = \Delta_C - e^{-dT}.
+            $$
+        </div>
+        <hr>
+        <p><b>Call Gamma:</b> \( \Gamma_C \equiv \partial^2 C / \partial S^2 = \partial \Delta_C / \partial S \). Again, simply differentiate the Delta:</p>
+        <div class="equation">
+            \begin{align*}
+            \Gamma_C &= \pdv{}{S} \left[e^{-dT} \Phi(a_+) + \frac{e^{-dT} e^{-a_+^2 / 2}}{\sigma\sqrt{2\pi T}} - \frac{K}{S} \frac{e^{-rT} e^{-a_-^2 / 2}}{\sigma\sqrt{2\pi T}}\right] \\
+            &= e^{-dT} \Phi'(a_+) \pdv{a_+}{S} + \frac{e^{-dT} e^{-a_+^2 / 2}}{\sigma\sqrt{2\pi T}} (-a_+) \pdv{a_+}{S} + \frac{K}{S^2} \frac{e^{-rT} e^{-a_-^2 / 2}}{\sigma\sqrt{2\pi T}} - \frac{K}{S} \frac{e^{-rT} e^{-a_-^2 / 2}}{\sigma\sqrt{2\pi T}} (-a_-) \pdv{a_-}{S} \\
+            &= \frac{1}{S\sigma\sqrt{2\pi T}} \left[ e^{-dT} e^{-a_+^2 / 2} - \frac{a_+ e^{-dT} e^{-a_+^2/2}}{\sigma\sqrt{T}} + \frac{K}{S} e^{-rT} e^{-a_-^2/2} + \frac{K}{S} \frac{a_- e^{-rT} e^{-a_-^2/2}}{\sigma\sqrt{T}} \right].
+            \end{align*}
+        </div>
+        <p><b>Put Gamma:</b> differentiating the put-call parity twice with respect to \(S\) yields \( \Gamma_P = \Gamma_C \).</p>
+        <hr>
+        <p><b>Call Vega (Kappa):</b> \(\kappa_C \equiv \partial C / \partial\sigma\). Let us define the pair:</p>
+        <div class="equation">
+            $$
+            b_{\pm} \equiv \pdv{a_{\pm}}{\sigma} = -\frac{a_{\pm}}{\sigma} \pm \sqrt T.
+            $$
+        </div>
+        <p>Then, the call Vega (Kappa) is simply:</p>
+        <div class="equation">
+            $$
+            \kappa_C = e^{-dT} S \Phi'(a_+) b_+ - e^{-rT} K \Phi'(a_-) b_-.
+            $$
+        </div>
+        <p><b>Put Vega (Kappa):</b> differentiating the put-call parity with respect to volatility yields</p>
+        <div class="equation">
+            $$
+            \pdv{C}{\sigma} - \pdv{P}{\sigma} = \pdv{F}{\sigma} = 0 \quad \Rightarrow \quad \kappa_P = \kappa_C.
+            $$
+        </div>
+        <hr>
+        <p><b>Call Rho:</b> \(\rho_C \equiv \partial C / \partial r.\)</p>
+        <div class="equation">
+            \begin{align*}
+            \rho_C &= e^{-dT} S \Phi'(a_+) \pdv{a_+}{r} + T e^{-rT} K \Phi(a_-) - e^{-rT} K \Phi'(a_-) \pdv{a_-}{r} \\
+            &= \frac{\sqrt{T}}{\sigma} \left[ e^{-dT} S \Phi'(a_+) - e^{-rT} K \Phi'(a_-) \right] + T e^{-rT} K \Phi(a_-).
+            \end{align*}
+        </div>
+        <p><b>Put Rho:</b> differentiate the put-call parity with respect to \(r\):</p>
+        <div class="equation">
+            $$
+            \pdv{C}{r} - \pdv{P}{r} = \pdv{F}{r} = T e^{-rT} K \quad \Rightarrow \quad \rho_P = \rho_C - T e^{-rT} K.
+            $$
+        </div>
+        <hr>
+        <p><b>Call Theta:</b> this is the time derivative of the call price, which is equivalent to minus the expiry derivative, \(\theta_C \equiv - \partial C / \partial T\). Let us define the pair</p>
+        <div class="equation">
+            $$
+            c_\pm \equiv \pdv{a_\pm}{T} = -\frac{1}{2} \frac{\log S/K}{\sigma T^{3/2}} + \frac{1}{2} \frac{(r-d\pm \sigma^2/2)}{\sigma\sqrt{T}}.
+            $$
+        </div>
+        <p>Then,</p>
+        <div class="equation">
+            $$
+            \theta_C = de^{-dT}S\Phi(a_+) - re^{-rT}K\Phi(a_-) - e^{-dT}S\Phi'(a_+) c_+ + e^{-rT} K \Phi'(a_-) c_-.
+            $$
+        </div>
+        <p><b>Put Theta:</b> \(\theta_P \equiv -\partial P / \partial T\).</p>
+        <div class="equation">
+            $$
+            \pdv{C}{T} - \pdv{P}{T} = \pdv{F}{T} = -de^{-dT}S + re^{-rT}K \quad \Rightarrow \quad \theta_P = \theta_C -de^{-dT}S + re^{-rT}K.
+            $$
+        </div>
+    </body>
+    
+</html>

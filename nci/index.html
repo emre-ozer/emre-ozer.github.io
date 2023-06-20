@@ -40,7 +40,9 @@
         <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
         <article class="content">
         <h2>Newton-Cotes method - implementation</h2>
+        <hr>
         <h3>How to implement?</h3>
+        <hr>
         <p>I wrote a very basic implementation of the Newton-Cotes method to arbitrary order in Python. In this section, I will go over (not in too much detail) how it all works.</p>
         <p>First order of business, the user will need to specify the order of the Newton-Cotes method. This order is defined in the theory section, and equals 1 for trapezium, 2 for Simpson etc. Given an order, we need a function that calculates the weights. Here it is:</p>
         <blockquote><pre><code>def find_coefficients(order):
@@ -71,6 +73,7 @@
             I += c*f(a+h*(k+n),*args)
     return h*I</code></pre></blockquote>
         <h3>Test 1: Error bound order</h3>
+        <hr>
         <p>Let's test our theory and implementation. We know how to calculate the scaling of the error bound in interval length \(h\), and here is a function that does it:</p>
         <blockquote><pre><code>def find_error_order(coeff):
     """
@@ -91,6 +94,7 @@
         <img src="test1.svg" width="35%">
         <p>We see that, as expected from theory, the error orders are grouped up in pairs. It would be interesting to compute the exact error coefficient and compare the error bound to the actual error for different types of functions.</p>
         <h3>Test 2: Runge's phenomenon</h3>
+        <hr>
         <p>Consider the function</p>
         <div class="equation">$$
         f(x) = \frac{1}{1+25x^2},
@@ -109,6 +113,7 @@
         $$</div>
         <p>The maximum of this function is rougly at \( 1 = 25 x^2 \), and so we set \(M_{n} = 5^n n!\). The error is therefore bounded by \((b-a)h^n 5^n\). Of course, this is an upper bound and so it doesn't by itself imply the error should diverge. But it shows that the divergence, caused by the factorial growth of the derivatives of the function, is consistent with the theory.</p>
         <h3>Test 3: Lagrange interpolation</h3>
+        <hr>
         <p>First, we write a function which returns the Lagrange interpolating polynomial, given a function and a set of nodes. A simple implementation is the following pair of functions:</p>
         <blockquote><pre><code>def lagrange_polynomial(x, f, nodes, args=()):
     """

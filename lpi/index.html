@@ -14,6 +14,7 @@
         <h1><a class="head" href="../index.html">emre-ozer.github.io</a></h1>
         <article class="content">
         <h2>Lagrange polynomial interpolation</h2>
+        <hr>
         <p>Consider the following problem: given a set of nodes \( \{ x_k \} \) and a corresponding set of values \( \{ y_k \} \), find the lowest order interpolating polynomial \( L(x) \). An interpolating polynomial is defined through the set of relations:</p>
         <div class="equation">$$
         L(x_i) = y(x_i)
@@ -33,6 +34,7 @@
         $$</div>
         <p>arranged such that they have zeros at \(x_j\) for \( j \neq i \), and normalised such that \( \ell_i(x_i) = 1 \).</p>
         <h3>Equivalence to Newton-Cotes methods</h3>
+        <hr>
         <p>Upon closer inspection, it turns out that Newton-Cotes integration is nothing but Lagrange interpolation in disguise. This should be intuitive, as in both cases we evaluate the function on a set of nodes and minimize errors using polynomials.</p>
         <p>On the Newton-Cotes side, the number of nodes used is determined by the error order, which arises from going further in the Taylor expansion. On the interpolation side, the order of the interpolating polynomial is determined by the number of nodes.</p>
         <p>To be more explicit, the map between the two is given through:</p>

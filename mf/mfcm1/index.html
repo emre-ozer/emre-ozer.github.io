@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Options with Polygon API</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Options with Polygon API</h2><hr>
+        <p>Github repository for this project: <a href="https://github.com/emre-ozer/mathematical-finance/blob/main/polygon-options/option.py" title="https://github.com/emre-ozer/mathematical-finance/blob/main/polygon-options/option.py">https://github.com/emre-ozer/mathematical-finance/blob/main/polygon-options/option.py</a></p>
+        <h3>What is polygon.io?</h3>
+        <hr>
+        <p><a href="https://polygon.io" title="https://polygon.io">polygon.io</a> is provides APIs for various financial markets including stock, option, index, forex and crypto. For this project, we will need option market data (as well as data about the underlyings). I use the free version, which has feature and data limitations. I also use python 3.11 throughout.</p>
+        <p><a href="https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract" title="https://polygon.io/docs/options/get_v3_snapshot_options__underlyingasset___optioncontract">Option snapshot</a> is a paid feature of the polygon option API. Basically, it provides all information about an options contract: current price, time to expiry, break even price, implied volatility, Greeks and so on. The aim of this mini-project is to implement this from scratch.</p>
+        <p>For reference, here is the documentation I have referred to: <a href="https://polygon.readthedocs.io/en/latest/index.html" title="https://polygon.readthedocs.io/en/latest/index.html">https://polygon.readthedocs.io/en/latest/index.html</a></p>
+        <h3>Roadmap</h3>
+        <hr>
+        <p>Here is a rough outline of the roadmap I followed for the implementation:</p>
+        <ol>
+            <li>Determine inputs: risk-free rate \(r\), dividend rate of underlying \(d\), spot price \(S\), time of expiry \(T\), strike \(K\).</li>
+            <li>Compute the implied volatility.</li>
+            <li>Compute Greeks.</li>
+            <li>Clean up code and organise in an option class (OOP).</li>
+        </ol>
+        <p>Before we get started, we need to initialize the python clients for three polygon APIs: options, stocks, and reference. This is done through:</p>
+        <pre><code>import polygon
+reference_client = polygon.ReferenceClient(client_ID)
+stocks_client = polygon.StocksClient(client_ID)
+options_client = polygon.OptionsClient(client_ID)</code></pre>
+        <h3>Determining inputs</h3>
+        <hr>
+        <ul>
+            <li><p><b>Risk-free interest rate:</b> for this, I use the risk-free one-year treasury rate. Note that this rate (yield) changes every day, currently it is around 5%. As polygon API does not provide this rate, I have fixed it in code manually. Clearly, there is room for improvement in how I have handled this.</p>
+            </li>
+
+            <li><p><b>Spot:</b> the free version of polygon stocks API doesn't provide information about the current date, the latest is the previous day. To get the price information on the previous day, one can use the <code>get_previous_close</code> function of the stocks API. This provides opening, closing, high, low and volume weighted prices for the previous trading day.</p>
+            <p>I don't know whether the closing price or the volume weighted price is better to use, I chose volume weighted. One only needs the ticker of the underlying (e.g. AAPL, META etc.) as an input.</p>
+            <pre><code>S = stock_client.get_previous_close(ticker).get("results")[0].get("vw")</code></pre>
+            </li>
+        
+            <li><p><b>Dividend rate:</b> polygon reference API provides past dividend payments through the <code>get_stock_dividends</code> function. However, the free account is limited to 5 queries per minute - so it doesn't make sense to access all previous dividend payments.</p>
+            <p>Hence, I will approximate the dividend rate using a single query: the latest dividend payment. We simply get the latest dividend payment and the payment frequency (number of payments in a year) using the <code>get_stock_dividends</code> function. Note that if the stock pays no dividends (e.g. META), this function returns a null object and one needs to check for this case.</p>
+            <p>The dividend rate is approximated as the latest dividend payment times the frequency, divided by the current stock price.</p>
+            </li>
+
+            <li><p><b>Time to expiry:</b> it is best to use datetime objects for this. One enters the expiry date for the option, and the previous days date. Then, the following code block counts the time to expiry in units of years:</p>
+            <pre><code>import datetime as dt
+expiry = dt.date(2023,8,18)
+previous = dt.date.today() - dt.timedelta(days=1)
+T = (expiry - previous).days / 365</code></pre>
+            </li>
+
+            <li><p><b>Strike:</b> this is a user input, determined by the particular option contract one is interested in.</p></li>
+        </ul>
+        <h3>Computing the implied volatility</h3>
+        <hr>
+        <p>This is simple, one just needs to fetch the market price of the option and solve for \(\sigma\) for which it matches the Black-Scholes price. The market price on the previous day is fetched by</p>
+        <pre><code>options_client.get_previous_close(opt_ticker)</code></pre>
+        <p>Again, I am using the volume weighted price, but can also consider the closing price. To solve for \(\sigma\), I use <code>scipy.fsolve</code>. To illustrate how this works, consider a call option. <code>fsolve</code> finds the value at which a function equals zero, and so we write a function that outputs the difference between the Black-Scholes price and the market price of an options contract:</p>
+        <pre><code>def __BS_call(self, vol):
+    S = self.spot
+    K = self.strike
+    r = self.r
+    d = self.d
+    T = self.T
+    a1 = (log(S/K) + (r - d + 0.5*vol*vol)*T) / (vol*sqrt(T))
+    a2 = (log(S/K) + (r - d - 0.5*vol*vol)*T) / (vol*sqrt(T))
+    return exp(-d*T)*S*self.__phi(a1) - K*exp(-r*T)*self.__phi(a2) - self.market_price</code></pre>
+        <p>Note that this is a function of an option class, all inputs to the Black-Scholes formula are attributes of an instance of this class - except for the volatility which we solve for.</p>
+        <p>As a side note, the function <code>__phi(x)</code> here is the cumulative normal function, and is easily implemented in terms of the error function:</p>
+        <pre><code>def __phi(self, x):
+    return (1.0 + erf(x / sqrt(2.0))) / 2.0</code></pre>
+        <h3>Greeks</h3>
+        <hr>
+        <p>Once we have solved for the implied volatility, we simply evaluate the analytic expressions for the Greeks. See <a href="../mft3/index.html" title="Greeks">my page</a> on the subject for a list of the analytic expressions. To illustrate, the delta is computed by the funciton:</p>
+        <pre><code>def __Delta(self):
+    S = self.spot
+    K = self.strike
+    r = self.r
+    d = self.d
+    T = self.T
+    vol = self.implied_vol
+    a1 = (log(S/K) + (r - d + 0.5*vol*vol)*T) / (vol*sqrt(T))
+    a2 = (log(S/K) + (r - d - 0.5*vol*vol)*T) / (vol*sqrt(T))
+    if self.type == 'C':
+        return exp(-d*T)*self.__phi(a1) + (exp(-d*T)*S*exp(-a1*a1/2) - exp(-r*T)*K*exp(-a2*a2/2)) / (S*vol*sqrt(2*pi*T))
+    else:
+        return exp(-d*T)*self.__phi(a1) + (exp(-d*T)*S*exp(-a1*a1/2) - exp(-r*T)*K*exp(-a2*a2/2)) / (S*vol*sqrt(2*pi*T)) - exp(-d*T)</code></pre>
+ 
+        <p>where the type variable equals <code>'C'</code> for a call, and <code>'P'</code> for a put.</p>
+        <h3>Output and a test run</h3>
+        <hr>
+        <p>I have structured the output similar to the polygon's snapshot function, it returns a set of dictionaries:</p>
+        <pre><code>def snapshot(self):
+    details = {"contract_type": 'call' if self.type == 'C' else 'put',
+                "exercise_style": self.exercise_style,
+                "expiration_date": self.expiry_date.strftime('%Y-%m-%d'),
+                "strike_price": self.strike,
+                "ticker": self.ticker}
+    greeks = {"delta": self.__Delta(),
+                "gamma": self.__Gamma(),
+                "vega": self.__Vega(),
+                "rho": self.__Rho(),
+                "theta": self.__Theta()}
+    return {"details": details, 
+            "implied_volatility": self.implied_vol,
+                "greeks" : greeks }</code></pre>
+        <p>The exercise style of the option is accessed through:</p>
+        <pre><code>self.exercise_style = reference_client.get_option_contract(self.ticker).get('results').get('exercise_style')</code></pre>
+        <p>As an example case, consider a call option struck at 200 for AAPL, expiring on 2023-08-18. When we run the code</p>
+        <pre><code>opt1 = Option('AAPL', 200, 'C', dt.date(2023,8,18))
+print(opt1.snapshot())</code></pre>
+        <p>we get the output (at the time of writing 2023-06-20)</p>
+<pre><code>{'details': {'contract_type': 'call', 
+    'exercise_style': 'american', 
+    'expiration_date': '2023-08-18', 
+    'strike_price': 200, 
+    'ticker': 'AAPL230818C00200000'}, 
+'implied_volatility': 0.19197814859347587, 
+'greeks': {'delta': 0.2025270778382304, 
+    'gamma': 0.019533409530053225, 
+    'vega': 21.20358805737834, 
+    'rho': 5.9148925438389846, 
+    'theta': -14.05094136288048}}</code></pre>
+    </article>
+    </body>
+    
+</html>
