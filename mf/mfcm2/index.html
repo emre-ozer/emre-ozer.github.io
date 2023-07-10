@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Option smiles with Polygon API</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+        <article class="content">
+        <h2>Option smiles with Polygon API</h2><hr>
+        <p>Github repository for this project: <a href="https://github.com/emre-ozer/mathematical-finance/blob/main/polygon-options/option.py" title="https://github.com/emre-ozer/mathematical-finance/blob/main/polygon-options/option.py">https://github.com/emre-ozer/mathematical-finance/blob/main/polygon-options/option.py</a></p>
+        <h3>Roadmap</h3>
+        <hr>
+        <p>This is an example use case of the option class implemented <a href="../mfcm1/index.html">here</a>. The aim is to observe market smiles in implied volatilities, that is observing a convex relationship between the strike and implied volatility, with a local minimum.</p>
+        <p>Given a set of option contracts (with the same expiry and underlying), be it call or put, and a set of strike prices, we would like to compute and plot the implied volatility as a function of strike.</p>
+        <ul>
+            <li>We already have the tools from the option.py implementation at our disposal, which includes computing the implied volatility.</li>
+            <li>Write the output to a csv file.</li>
+            <li>Implement a query counter so that we don't make more than 5 API calls per minute.</li>
+            <li>Finally, write a plotting script.</li>
+        </ul>
+        <h3>Implementation</h3>
+        <hr>
+        <p>It turns out that initialising an option object in our previous implementation makes 1 call per API client (stock, option, reference), provided we don't query the exercise style at initialisation. This makes counting queries trivial, as for each contract we increase the count by one.</p>
+        <p><b>Side note:</b> I am not distinguishing between American and European options, even though their no-arbitrage prices differ for dividend-paying stocks. The error will be small for stocks with dividend rate much smaller than the interest rate.</p>
+        <p>Here is a function that takes the underlying ticker, an array of strikes, the expiry (as a datetime.date object) and the type ('C' or 'P') as an input; and records the implied volatility as a function of strike on a csv file.</p>
+<pre><code>def smile(underlying, strikes, expiry, type):
+    query_count = 0
+    f = open("SM_{0}{1}{2}.csv".format(underlying, type, expiry.strftime("%y%m%d")), "w")
+    f.write('K,IV')
+    for K in strikes:
+        print(K)
+        if query_count == 5:
+            print('Query limit reached, waiting for 60 seconds.')
+            time.sleep(60)
+            query_count = 0
+        opt = option.Option(underlying, K, type, expiry)
+        output = str(K) + ',' + str(opt.implied_vol)
+        f.write('\n' + output)
+        query_count += 1
+    f.close()</code></pre>
+        <p>I find it easiest to go to Yahoo Finance, and look up the option chains manually for a given underlying (e.g. here is the link for <a href="https://finance.yahoo.com/quote/SPY/options?p=SPY" title="https://finance.yahoo.com/quote/SPY/options?p=SPY">SPY</a>). The important point here is to make sure the range of strikes we specify have sufficient volume, otherwise the prices would be unknown and our analysis would be irrelevant.</p>
+    <h3>Results</h3>
+    <hr>
+    <p>Below is a plot of implied volatilites (at the time of writing) for various call options on the following underlyings: AAPL, AMZN, GOOG, JNJ, META, XOM; all with expiry on 18th of August 2023. Options with the most trading volume display the cleanest smiles, such as AAPL, AMZN and GOOG.</p>
+    <img src = "smiles.svg" width="100%" alt="Smiles for various options"/>
+    <p>It is straightforward to extend this analysis to other option types, expiries and underlyings. It is illustrative to observe the time dependency (or rather the expiry dependency) is smiles. Consider calls struck on SPY, for which the volumes are sufficiently large. Below plotted are smiles for options contracts expiring on August 18, September 15 and October 20 (the time of writing is July 10). Roughly, each contract expires a month apart.</p>
+    <img src = "SPY_smiles.svg" style="max-width:600px;width:100%" alt="Smile dependency on expiry"/>
+    <p>A clear trend can be seen here: the smiles tighten as the expiry approaches. Equivalently, one observes that the second derivative of implied volatility with respect to strike is monotonically decreasing as a function of time to expiry.</p>
+</article>
+</body>    
+</html>
