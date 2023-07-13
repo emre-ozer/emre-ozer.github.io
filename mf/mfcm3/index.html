@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Binomial tree: C++ implementation</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+<article class="content">
+        <h2>Binomial tree: C++ implementation</h2><hr>
+        <p>Github repository for this project: <a href="https://github.com/emre-ozer/mathematical-finance/tree/main/binomial_tree">https://github.com/emre-ozer/mathematical-finance/tree/main/binomial_tree</a></p>
+        <h3>General considerations</h3>
+        <hr>
+        <p>A binomial tree is simple: it is a recombining tree with every node having two daughter nodes in the next layer. See this Wikipedia article for reference: <a href="https://en.wikipedia.org/wiki/Binomial_options_pricing_model">https://en.wikipedia.org/wiki/Binomial_options_pricing_model</a>.</p>
+        <p>There are two ways (as far as I know) of approaching tree pricing: the first is to explicitly construct the risk-neutral measure by computing the probabilities for up and down moves. This is the method shown in the Wikipedia article. The alternate approach is to simply use the tree as a proxy for risk-neutral evolution of the underlying's price. This, in my opinion, is much cleaner as the probabilities for up and down movements are fixed to 1/2 each. I will be following the second approach.</p>
+        <p>We choose to work with \(\log S\), that is, assign nodes the value of the logarithm of the price of the underlying. The reason for this is simple: under geometric Brownian motion \(\Delta \log S \) is independent of \(S\), which makes it simpler to relate neighbouring layers of the tree.</p>
+        <h3>Risk-neutral evolution</h3>
+        <hr>
+        <p>First, we discretise the risk-neutral process (with interest rate \(r\), dividend rate \(d\) and volatility \(\sigma\)):</p>
+        <div class="equation">
+            $$
+            d \log S = \left(r-d-\frac{1}{2}\sigma^2\right)dt + \sigma dW
+            $$
+            $$
+            \Rightarrow \quad \Delta \log S = \left(r-d-\frac{1}{2}\sigma^2\right)\Delta t + \sigma \sqrt{\Delta t} Z,
+            $$
+        </div>
+        <p>where \(Z \sim \mathcal{N}(0,1)\) is a random variable drawn from the normal distribution. We would like to approximate this by a two-step process such that in the \(\Delta t \to 0 \) limit, the two-step process converges to above. This can be done by invoking the central limit theorem: we simply replace \(Z\) by a random variable \(X\), taking values \(\pm 1\) with equal probability. The two-step process is:</p>
+        <div class="equation">
+            $$
+            \log S_{t+\Delta t} = \log S_t + \left(r-d-\frac{1}{2}\sigma^2\right)\Delta t + \sigma \sqrt{\Delta t} X_t,
+            $$
+        </div>
+        <p>with \(X_t\) iid. Consider the \(N = T/\Delta t\) step process:</p>
+        <div class="equation">
+            $$
+            \log S_{T} = \log S_0 + \left(r-d-\frac{1}{2}\sigma^2\right)T + \sigma \sqrt{T} \frac{1}{\sqrt{N}} \sum_{i=1}^N X_i.
+            $$
+        </div>
+        <p>The central limit theorem implies \(\lim_{N\to\infty} \sum_{i=1}^N X_i / \sqrt{N} = Z \sim \mathcal{N}(0,1) \), as the \(X_i\) have zero mean and unit variance.</p>
+        <p>To summarise, we can approximate the risk-neutral evolution of \(\log S\) on a binomial tree by the process</p>
+        <div class="equation">
+            $$
+            \Delta \log S = \left(r-d-\frac{1}{2}\sigma^2\right)\Delta t \pm \sigma \sqrt{\Delta t}.
+            $$
+        </div>
+        <h3>Options pricing</h3>
+        <hr>
+        <p>The general method for pricing options on trees is to work backwards, starting from the final layer which is determined by the payoff. Here is a rough outline:</p>
+        <ol>
+            <li>Construct a binomial tree of duration \(T\).</li>
+            <li>Determine the prices of the final layer nodes through the option's payoff.</li>
+            <li>Apply the suitable update rule recursively until you reach the initial node.</li>
+        </ol>
+        <p>An option is completely specified by its payoff and update rule. For vanilla options, the update rule is straightforward: the price of a node equals the discounted expectation of its daughter nodes.</p>
+        <div class="equation">
+            $$
+            \frac{1}{2} e^{-r\Delta t} \left( \text{price}(\text{up}) + \text{price}(\text{down}) \right).
+            $$
+        </div>
+        <p>For American options and exotics, the update rule will be slightly more complicated.</p>
+        <h3>Determining the tree structure</h3>
+        <hr>
+        <p>Before we start implementing, we should determine what information we would like the tree to provide. This essentially reduces to the question of: do we store the entire tree or not? If we are just interested in the initial price of an option, we definitely do not need to store each layer in memory and it would be very inefficient to do so. This is essentially the statement that each layer is completely determined by its daughter, and so once we compute a layer we no longer need its daughter. However, for other purposes (or more exotic options), it might be useful to have acceess to the entirety of the tree. And so, I will present both cases, though the final implementation will not store the tree in the memory.</p>
+        <h3>Case 1: storing the entire tree</h3>
+        <p>This is by far the more difficult case, as to store the tree efficiently one needs to enumerate the nodes in an efficient manner. At each time step, the tree gains 1 new node, and so after \(N\) steps the final layer has \(N+1\) nodes. Clearly, the most efficient way to store all nodes is to use a triangular matrix (with the diagonal).</p>
+        <p>It doesn't matter whether one uses an upper or lower triangular matrix, although I would prefer lower as in that case the rows correspond to the number of time steps and columns enumerate the nodes in that particular layer. After \(N\) time steps, we obtain a lower triangular matrix of size \(N+1\) which has \( \frac{1}{2}(N+1)(N+2) \) elements.</p>
+        <p>Here is one way of representing a lower triangular matrix in C++: we combine the two indices appropriately such that the entire tree is represented in a 1d array. The appropriate map is:</p>
+        <div class="equation">
+            $$
+            \{i,j = 0,1,\dots,N \mid i \geq j\} \to \{ k = 0, 1, \dots, \frac{1}{2}(N+1)(N+2)-1 \}
+            $$
+            $$
+            (i,j) \mapsto \frac{1}{2} i (i+1) + j.
+            $$
+        </div>
+        <p>We aalso need the connections betweeen nodes expressed in terms of the lower triangular matrix indices \( i, j \). Given a node \( (i,j) \), its daughter nodes are \( \{(i+1, j), (i+1,j+1)\} \).</p>
+        <p>This completes the representation of a binomial tree as a lower triangular matrix.</p>
+        <h3>Case 2: storing only a single layer</h3>
+        <p>This is a much simpler case as at most we need to store the final layer, and so we only need an array of length \(N+1\). As we propagate backwards with the update rule, we will update the first \(m\) elements with \(m=N,N-1,\dots,1\). By convention, let us choose to order the nodes with stock values increasing in array index, with the lowest stock value node indexed at zero.</p>
+        <p>The rule for computing \(\log S\) is straightforward: one first computes the minimum value of \(\log S\) given a layer, and increments upwards. For an \(m\)-node layer, the minimum is</p>
+        <div class="equation">
+            $$
+            \min_m \{\log S\} = \log S_0 + \left(r-d-\frac{1}{2}\sigma^2\right)(m-1)\Delta t - (m-1) \sigma \sqrt{\Delta t}.
+            $$
+        </div>
+        <p>Each consecutive node differs in value of \(\log S\) by \(2\sigma\sqrt{\Delta t}\), and so the node at index \(i\) has value:</p>
+        <div class="equation">
+            $$
+            \min_m\{\log S\} + 2i\sigma \sqrt{\Delta t}.
+            $$
+        </div>
+        <p>This completes our representation of a single layer of the tree.</p>
+        <h3>Object-oriented implementation</h3>
+        <hr>
+        <p>We would like to separate, as much as possible, the binomial tree from the option payoff and update rules (so that it is easier to price different options). For this, and object-oriented approach is well suited.</p>
+        <h3>Option class</h3>
+        <p>First, note that the tree is specified by the following set of parameters: \(S_0,r,d,\sigma,T,N\), and \(dt = T/N\). All of these (except \(N\) and \(dt\)) are also required to specify an option, so it makes sense to package this set of variables in an Option class. Here is my implementation of such a class:</p>
+        <pre><code>#include &ltiostream&gt
+#include &ltmath.h&gt
+#include &ltstring&gt
+
+using namespace std;
+
+class Option {
+    public:
+    double S0, K, T, r, d, vol;
+    string contract, exercise;
+    Option(double=100.0, double=100.0, double=1.0, double=0.05, double=0.0,double=0.2, string="call", string="european");
+    double payoff(double);
+    double update_rule(double, double, double);
+};
+
+Option::Option(double spot, double strike, double expiry, double interest, double dividend, double volatility, string contract_type, string exercise_type) {
+    /*
+    Constructor for the Option class.
+    Default is a European call option with strike and spot 100, expiry 1, interest 0.05, dividend 0.0 and volatility 0.2.
+    */
+    S0 = spot;
+    K = strike;
+    T = expiry;
+    r = interest;
+    d = dividend;
+    vol = volatility;
+    contract = contract_type;
+    exercise = exercise_type;
+}</code></pre>
+        <p>We can now use an Option class to initialize a Binomial tree. Since an option is completely specified by its payoff and update rule, it will be convenient to also include these functions as members of the Option class. Let us first consider how the payoff and update rule functions will look like.</p>
+        <p>The payoff is in general a function of stock price, and any additional parameters of the option contract (strike, barrier etc.) Here is a payoff function supporting call and put options:</p>
+        <pre><code>double Option::payoff(double S) {
+    try {
+        if (contract == "call") {
+            return max(S - K, 0.0); 
+        }
+        else if (contract == "put") {
+            return max(K - S, 0.0); 
+        }
+        else { throw "Unsupported contract_type"; }
+    }
+    catch (...) {
+        cout << "Option::payoff supports only options of type 'call' or 'put'." << endl;
+        exit(-1);
+    }
+}</code></pre>
+        <p>The update rule is more complicated, as it needs the values of the two daughter nodes (call them node_up and node_down), as well as possibly the stock price (for options with early exercise features.)
+        Here are the update rules for European, and American call and put options:</p>
+<pre><code>double Option::update_rule(double node_up, double node_down, double S) {
+    try {
+        if (exercise == "european") {
+            return 0.5 * (node_up + node_down);
+        }
+        else if (exercise == "american") {
+            return max(0.5 * (node_up + node_down), payoff(S));
+        }
+        else { throw "Unsupported exercise_type"; }
+    }
+    catch (...) {
+        cout << "Option::BT_update_rule supports only options of exercise 'european' or 'american'." << endl;
+        exit(-1);
+    }
+}</code></pre>
+        <p><b>Comment on discounting:</b> when pricing the option, we care about the discounted expectation. However, we don't want to discount the immediate exercise value (intrinsic value) for american options. Since the Option class does not have access to the \(dt\) parameter, the discounting should be done in the binomial tree. The cleanest way to do this is to simply discount node_up and node_down when pricing, and use the discounted node values in the update rule.</p>
+        <h3>BinomialTree class</h3>
+        <p>We define the BinomialTree class such that the constructor takes an Option and an integer N (the number of time steps). The class will have parameters \(S_0, T, r, d, \sigma, dt\) and \(N\), as well as an array called final_layer and a public variable called price, corresponding to the initial price of the option. Here is my implementation:</p>
+<pre><code>class BinomialTree {
+        Option p;
+        double S0, T, r, d, vol, dt;
+        int N;
+        double *final_layer;
+    public:
+        double price;
+        BinomialTree (Option, int);
+        void set_option(Option opt) {
+            p = opt;
+            S0 = opt.S0;
+            T = opt.T;
+            r = opt.r;
+            d = opt.d;
+            vol = opt.vol;
+        }
+        void set_N(int m) {
+            N = m;
+            dt = T / N;
+        }
+        void compute_final_layer();
+        double compute_price(bool = true);
+        double compute_averaged_price();
+};
+
+BinomialTree::BinomialTree (Option opt, int n) {
+    set_option(opt);
+    N = n;
+    dt = T / N;
+}
+</code></pre>
+        <p>The constructor simply unpacks the relevant parameters from the option, and sets the time step \(dt\). There are some convenient member functions, set_option unpacks the option parameter and can be used to change the option for which the tree is defined, and set_N changes the number of time steps (and adjusts dt accordingly). Finally, there are three computation functions which I will go over now.</p>
+        <p>First, the compute_final_layer function uses the option payoff to set up an array of length \(N+1\), containing the payoff. This looks like follows:</p>
+<pre><code>void BinomialTree::compute_final_layer() {
+    /*
+    Uses the option payoff to initialize the final layer of the tree. This is stored in the final_layer array.
+    */
+    double S;
+    double nodes[N+1];
+    double S_min = S0 * exp( (r - d - 0.5*vol*vol)*T - N*vol*sqrt(dt) );
+    for (int i = 0; i < N+1; i++) {
+        S = S_min * exp(2*i*vol*sqrt(dt));
+        nodes[i] = p.payoff(S);
+    }
+    final_layer = nodes;
+}</code></pre>
+        <p>One doesn't need to call this function explicitly, as the compute_price function already calls this to initialise the payoff. As outlined above, one iterates backwards using the update rule to obtain the initial price. I have added a boolean parameter to determine whether calling the compute_price() function updates the price parameter of the tree for future convenience, by default it is set to true. The price is computed as follows:</p>
+<pre><code>double BinomialTree::compute_price(bool update_price) {
+    /*
+    Constructs the final layer using the compute_final_layer function.
+    Applies the update rule recursively to the first node.
+    Stores the initial node value as price, and outputs it.
+    */
+    compute_final_layer();
+    double *nodes = final_layer;
+    double S_min, S;
+    for (int m = N; m > 0; m--) {
+        S_min = S0 * exp( (r - d - 0.5*vol*vol)*(m-1)*dt - (m-1)*vol*sqrt(dt) );
+        for (int i = 0; i < m; i++) {
+            S = S_min * exp(2*i*vol*sqrt(dt));
+            nodes[i] = p.update_rule(exp(-r*dt) * nodes[i], exp(-r*dt) * nodes[i+1], S);
+        }
+    }
+    if (update_price) { price = nodes[0]; }
+    return nodes[0];
+}</code></pre>
+        <p>Finally, tree pricing of options is susceptible to oscillations depending on whether \(N\) is even or odd. For more details, refer to <a href="../mfcm4/index.html" title="Binomial tree: convergence">Binomial tree: convergence</a>. An easy way to make the price converge much faster is to average the prices computed by taking \(N\) and \(N+1\) steps. This is what the compute_averaged_price() function does:</p>
+<pre><code>double BinomialTree::compute_averaged_price() {
+    /*
+    Computes the even-odd averaged price, for a given N outputs the averaged value of N and N+1 layers.
+    */
+    double price1 = compute_price(false);
+    set_N(N+1);
+    double price2 = compute_price(false);
+    set_N(N-1);
+    price = 0.5 * (price1 + price2); 
+    return price;
+}</code></pre>
+        <h3>Examples</h3>
+        <hr>
+        <p>Here is an example use case, pricing at-the-money call and put options for European and American exercise styles. The parameters are as follows: \((S_0,K,T,r,d,\sigma,N) = (100,100,1,0.05,0,0.2,1000)\).</p>
+        <p><b>Input:</b></p>
+<pre><code>Option opt = Option();
+BinomialTree bt = BinomialTree(opt, 1000);
+cout << "European Call: " << bt.compute_averaged_price() << endl;
+opt.contract = "put";
+bt.set_option(opt);
+cout << "European Put: " << bt.compute_averaged_price() << endl;
+opt.exercise = "american";
+opt.contract = "call";
+bt.set_option(opt);
+cout << "American Call: " << bt.compute_averaged_price() << endl;
+opt.contract = "put";
+bt.set_option(opt);
+cout << "American Put: " << bt.compute_averaged_price() << endl;</code></pre>
+        <p><b>Output:</b></p>
+<pre><code>European Call: 10.4513
+European Put: 5.57422
+American Call: 10.4513
+American Put: 6.09108</code></pre>
+        <p>As expected, the \(d=0\) prices for american and european call option are equal. For put options, again it makes sense that the american put has greater value than the european put.</p>
+        <p>Let us now consider the case \(d > r\), where we expect the put prices to be close and the american call to be worth more than the european. Let's set \(d = 0.1\), and change the other parameters also.</p>
+        <p><b>Input:</b></p>
+<pre><code>Option opt = Option(110,105,0.8,0.05,0.1,0.2);
+BinomialTree bt = BinomialTree(opt, 1000);
+cout << "European Call: " << bt.compute_averaged_price() << endl;
+opt.contract = "put";
+bt.set_option(opt);
+cout << "European Put: " << bt.compute_averaged_price() << endl;
+opt.exercise = "american";
+opt.contract = "call";
+bt.set_option(opt);
+cout << "American Call: " << bt.compute_averaged_price() << endl;
+opt.contract = "put";
+bt.set_option(opt);
+cout << "American Put: " << bt.compute_averaged_price() << endl;</code></pre>
+        <p><b>Output:</b></p>
+<pre><code>European Call: 7.54892
+European Put: 6.88902
+American Call: 8.39909
+American Put: 6.88902</code></pre>
+        <p>Again, the results match our expectations.</p>
+</article>
+</body>    
+</html>
