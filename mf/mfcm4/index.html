@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Binomial tree: convergence and oscillations</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+<article class="content">
+        <h2>Binomial tree: convergence and oscillations</h2><hr>
+        <p>Implementation: <a href="../mfcm3/index.html">https://emre-ozer.github.io/mf/mfcm3/index.html</a></p>
+        <p>In the following, I will consider European call and put options (for which there exists exact analytic prices). The quantity by which we measure the rate of convergence is the percantage error:</p>
+        <div class="equation">
+            $$
+            \text{error} = \frac{\text{tree price} - \text{analytic price}}{\text{analytic price}}
+            $$
+        </div>
+        <p>As we will see, the tree price displays two types of oscillations, which I will call (1) even-odd oscillations and (2) large-N oscillations. Throughout this analysis, I fix the following parameters:</p>
+        <div class="equation">
+            $$
+            T = 1, \quad r = 0.05, \quad d = 0, \quad \sigma = 0.2
+            $$
+        </div>
+        <p>The general idea is to investigate how the convergence depends on \(N\) and \(S/K\). We will consider at-the-money, slightly in/out-of-money and far in/out-of-money cases.</p>
+        <h3>Case 1: at-the-money \( (S=K=100) \)</h3>
+        <hr>
+        <p>First, we will look at the simpler type of oscillation: even-odd oscillation. This is simply the statement that tree prices for even and odd \(N\) follow different trends (they look independent). This is evident at the small \(N\) case, so let us consider a call option with \(N \in \{4,5,\ldots,49\}\). Let us also consider the even-odd averaged price, that is, the price obtained by taking the averaged prices of \(N\) and \(N+1\) layer trees.</p>
+        <figure>
+            <img src="plot1.svg" style="max-width:800px;width:100%" alt="Figure 1: At-the-money call (left) and (put) option price errors as functions of N. Blue dots are single \(N\) layer prices, red dots are average prices of \(N\) and \(N+1\) layers.">
+            <figcaption>Figure 1: At-the-money call (left) and (put) option price errors as functions of N. Blue dots are single \(N\) layer prices, red dots are average prices of \(N\) and \(N+1\) layers.</figcaption>
+        </figure>
+        <p>Even-odd oscillations are evident: one curve corresponds to odd values of \(N\), and the other to even \(N\). It is important to note how quickly the tree price converges to the analytic price for an at-the-money option: even at \(N\sim 50\), the error is of order \(\mathcal{O}(10^{-3})\), less than one percent.</p>
+        <p>Intuitively, it makes sense that there exists such even-odd oscillations, as the final layer can either include the strike price or not depending on the number of final nodes.</p>
+        <p>Finally, the averaged price converges much faster thanks to the even-odd oscillations. For a given \(N\), it takes only twice as long to compute the averaged price yet it yields errors much smaller than a factor of two compared to the non-averaged case. It is definitely worthwhile to compute the averaged price for at-the-money options.</p>
+        <p>A more interesting and non-intuitive type of oscillation occur at larger \(N\): these are oscillations of the even and odd curves as a function of \(N\). Let us consider at-the-money call and put options for larger values of \(N\), up to 2000:</p>
+        <figure>
+            <img src="plot2.svg" style="max-width:800px;width:100%" alt="Figure 2">
+            <figcaption>Figure 2: Extension of figure 1 to larger \(N\).</figcaption>
+        </figure>
+        <p>The two overlapping curves correspond to even and odd layers, with each oscillations in a qualitatively similar manner. It is important to note that the amplitude of these oscillations is very small, as the error is of order \(\mathcal{O}(10^{-4})\) - for all practical purposes vanishingly small. I am not aware of any intuitive explanation for these large period oscillations, but this trend is present for a large subspace of the parameter space of vanilla options. It would be interesting to consider different types of options (such as exotics, digitals, down-and-outs) to see whether similar oscillations also occur in those cases.</p>
+        <h3>Case 2.1: slightly in/out-of-money \((S=120, \; K = 100)\)</h3>
+        <hr>
+        <p>We repeat the same analysis, for \(N = 100,101,\ldots,1000\). Again, we consider both put and call options. Both types of oscillations are evident from the plot:</p>
+        <figure>
+            <img src="plot3.svg" style="max-width:800px;width:100%" alt="Figure 3">
+            <figcaption>Figure 3: Slightly in/out-of-money \((S=120,\,K=100)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+        </figure>
+        <p>There are a couple features of interest: firstly, the large-\(N\) oscillation frequency is significantly greater than the at-the-money case. Secondly, the call option converges much faster than the at-the-money call, and the put option converges much slower than the at-the-money put. This can be attributed to the fact that, since \(S>K\), the call option payoff is much more densely populated whereas the put option payoff is zero for a big fraction of nodes. We expect to see the exact opposite behaviour between calls and puts for the \(S < K\) case.</p>
+        <p>There is another very interesting property that might lend itself to analytic analysis: consider the envelope surrounding the oscillations. The peaks located above zero (set of local maxima) seem to decay as a power-law - that is, the amplitude of oscillations seems to decay as a power-law. To get a better look, let us consider the log-log plot:</p>
+        <figure>
+            <img src="plot4.svg" style="max-width:800px;width:100%" alt="Figure 4">
+            <figcaption>Figure 4: Positive subset of data shown in figure 3, with x and y axes logarithmically scaled. (Negative error data points not shown).</figcaption>
+        </figure>
+        <p>The local maxima, for both non-averaged and averaged cases, displays a linear relationship on the log-log plot. This indicates a power law relation of the form:</p>
+        <div class="equation">
+            $$
+            \max_{\text{local}}(\text{error}) \propto N^{-\alpha}, \quad \alpha > 0.
+            $$
+        </div>
+        <p>I argue that one can aim for an analytic explanation of this power-law through the following observation: the way in which the binomial tree approximates Brownian motion is through approximating a normal randomvariable \(Z\sim\mathcal{N}(0,1)\) by a collection of discrete random variables \(X_i = \pm 1\) (with equal probability). See <a href="../mfcm3/index.html">my tree implementation page</a> for details. I expect that one should be able to use convergence bounds on the central limit theorem to relate how tree movements can differ from Brownian motion as a function of \(N\). This can be future work.</p>
+        <h3>Case 2.2: slightly in/out-of-money \((S=80, \; K = 100)\)</h3>
+        <hr>
+        <p>A very similar pattern to the previous case emerges, but as expected the call price converges much more slowly and the put price more rapidly.</p>
+        <figure>
+            <img src="plot5.svg" style="max-width:800px;width:100%" alt="Figure 6">
+            <figcaption>Figure 5: Slightly in/out-of-money \((S=80,\,K=100)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+        </figure>
+        <figure>
+            <img src="plot6.svg" style="max-width:800px;width:100%" alt="Figure 6">
+            <figcaption>Figure 6: Positive subset of data shown in figure 5, with x and y axes logarithmically scaled. (Negative error data points not shown).</figcaption>
+        </figure>
+        <h3>Case 3.1: far in/out-of-money \((S = 200, \; K =100)\)</h3>
+        <hr>
+        <p>This is an interesting case which is qualitatively different from the previous cases. The oscillations aren't centered around zero, but approach zero from below.</p>
+        <figure>
+            <img src="plot7.svg" style="max-width:800px;width:100%" alt="Figure 7">
+            <figcaption>Figure 7: Far in/out-of-money \((S=200,\,K=100)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+        </figure>
+        <figure>
+            <img src="plot8.svg" style="max-width:800px;width:100%" alt="Figure 8">
+            <figcaption>Figure 8: Absolute value of error data in figure 7, with x and y axes logarithmically scaled.</figcaption>
+        </figure>
+        <p>I would interpret this as a sort of "phase transition", happening somewhere in the \(S\in[120,200]\) region of parameter space, characterized by the overall oscillatory/decaying behaviour of the error vs. N curve.</p>
+        <h3>Case 3.2: far in/out-of-money \((S = 100, \; K = 200)\)</h3>
+        <hr>
+        <p>Similar to the previous case with the call and put convergence rates reversed.</p>
+        <figure>
+            <img src="plot9.svg" style="max-width:800px;width:100%" alt="Figure 9">
+            <figcaption>Figure 9: Far in/out-of-money \((S=100,\,K=200)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+        </figure>
+        <figure>
+            <img src="plot10.svg" style="max-width:800px;width:100%" alt="Figure 10">
+            <figcaption>Figure 10: Absolute value of error data in figure 9, with x and y axes logarithmically scaled.</figcaption>
+        </figure>
+</article>
+</body>    
+</html>

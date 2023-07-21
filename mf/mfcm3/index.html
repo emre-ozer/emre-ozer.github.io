@@ -17,7 +17,7 @@
         <p>Github repository for this project: <a href="https://github.com/emre-ozer/mathematical-finance/tree/main/binomial_tree">https://github.com/emre-ozer/mathematical-finance/tree/main/binomial_tree</a></p>
         <h3>General considerations</h3>
         <hr>
-        <p>A binomial tree is simple: it is a recombining tree with every node having two daughter nodes in the next layer. See this Wikipedia article for reference: <a href="https://en.wikipedia.org/wiki/Binomial_options_pricing_model">https://en.wikipedia.org/wiki/Binomial_options_pricing_model</a>.</p>
+        <p>A binomial tree is simple: it is a recombining tree with every node having two daughter nodes in the next layer. See this <a href="https://en.wikipedia.org/wiki/Binomial_options_pricing_model">Wikipedia article</a> for reference.</p>
         <p>There are two ways (as far as I know) of approaching tree pricing: the first is to explicitly construct the risk-neutral measure by computing the probabilities for up and down moves. This is the method shown in the Wikipedia article. The alternate approach is to simply use the tree as a proxy for risk-neutral evolution of the underlying's price. This, in my opinion, is much cleaner as the probabilities for up and down movements are fixed to 1/2 each. I will be following the second approach.</p>
         <p>We choose to work with \(\log S\), that is, assign nodes the value of the logarithm of the price of the underlying. The reason for this is simple: under geometric Brownian motion \(\Delta \log S \) is independent of \(S\), which makes it simpler to relate neighbouring layers of the tree.</p>
         <h3>Risk-neutral evolution</h3>
@@ -167,12 +167,11 @@ Option::Option(double spot, double strike, double expiry, double interest, doubl
 }</code></pre>
         <p><b>Comment on discounting:</b> when pricing the option, we care about the discounted expectation. However, we don't want to discount the immediate exercise value (intrinsic value) for american options. Since the Option class does not have access to the \(dt\) parameter, the discounting should be done in the binomial tree. The cleanest way to do this is to simply discount node_up and node_down when pricing, and use the discounted node values in the update rule.</p>
         <h3>BinomialTree class</h3>
-        <p>We define the BinomialTree class such that the constructor takes an Option and an integer N (the number of time steps). The class will have parameters \(S_0, T, r, d, \sigma, dt\) and \(N\), as well as an array called final_layer and a public variable called price, corresponding to the initial price of the option. Here is my implementation:</p>
+        <p>We define the BinomialTree class such that the constructor takes an Option and an integer \(N\) (the number of time steps). The class will have parameters \(S_0, T, r, d, \sigma, dt\) and \(N\), and a public variable called price, corresponding to the initial price of the option. Here is my implementation:</p>
 <pre><code>class BinomialTree {
         Option p;
         double S0, T, r, d, vol, dt;
         int N;
-        double *final_layer;
     public:
         double price;
         BinomialTree (Option, int);
@@ -183,47 +182,45 @@ Option::Option(double spot, double strike, double expiry, double interest, doubl
             r = opt.r;
             d = opt.d;
             vol = opt.vol;
+            dt = T / N;
+        }
+        Option get_option() {
+            return p;
         }
         void set_N(int m) {
             N = m;
+            dt = (double) T / N;
+        }
+        void set_T(double t) {
+            T = t;
             dt = T / N;
         }
-        void compute_final_layer();
-        double compute_price(bool = true);
+        double compute_price();
         double compute_averaged_price();
 };
 
 BinomialTree::BinomialTree (Option opt, int n) {
-    set_option(opt);
     N = n;
-    dt = T / N;
-}
-</code></pre>
-        <p>The constructor simply unpacks the relevant parameters from the option, and sets the time step \(dt\). There are some convenient member functions, set_option unpacks the option parameter and can be used to change the option for which the tree is defined, and set_N changes the number of time steps (and adjusts dt accordingly). Finally, there are three computation functions which I will go over now.</p>
-        <p>First, the compute_final_layer function uses the option payoff to set up an array of length \(N+1\), containing the payoff. This looks like follows:</p>
-<pre><code>void BinomialTree::compute_final_layer() {
+    dt = (double) opt.T / N;
+    set_option(opt);
+}</code></pre>
+        <p>The constructor simply unpacks the relevant parameters from the option, and sets the time step \(dt\). There are some convenient member functions, set_option unpacks the option parameter and can be used to change the option for which the tree is defined, and set_N changes the number of time steps (and adjusts dt accordingly). Finally, there are two computation functions which I will go over now.</p>
+        <p>The compute_price function first uses the option payoff to set up an array (named "nodes") of length \(N+1\), containing the payoff. As outlined above, one then iterates backwards using the update rule to obtain the initial price. The price is therefore computed as follows:</p>
+<pre><code>double BinomialTree::compute_price() {
     /*
-    Uses the option payoff to initialize the final layer of the tree. This is stored in the final_layer array.
+    Constructs the final layer using the option payoff.
+    Applies the update rule recursively to the first node.
+    Stores the initial node value as price, and outputs it.
     */
-    double S;
-    double nodes[N+1];
-    double S_min = S0 * exp( (r - d - 0.5*vol*vol)*T - N*vol*sqrt(dt) );
+    double S_min, S;
+    double * nodes = new double[N+1];
+    // compute final layer
+    S_min = S0 * exp( (r - d - 0.5*vol*vol)*T - N*vol*sqrt(dt) );
     for (int i = 0; i < N+1; i++) {
         S = S_min * exp(2*i*vol*sqrt(dt));
         nodes[i] = p.payoff(S);
     }
-    final_layer = nodes;
-}</code></pre>
-        <p>One doesn't need to call this function explicitly, as the compute_price function already calls this to initialise the payoff. As outlined above, one iterates backwards using the update rule to obtain the initial price. I have added a boolean parameter to determine whether calling the compute_price() function updates the price parameter of the tree for future convenience, by default it is set to true. The price is computed as follows:</p>
-<pre><code>double BinomialTree::compute_price(bool update_price) {
-    /*
-    Constructs the final layer using the compute_final_layer function.
-    Applies the update rule recursively to the first node.
-    Stores the initial node value as price, and outputs it.
-    */
-    compute_final_layer();
-    double *nodes = final_layer;
-    double S_min, S;
+    // apply update rule backwards
     for (int m = N; m > 0; m--) {
         S_min = S0 * exp( (r - d - 0.5*vol*vol)*(m-1)*dt - (m-1)*vol*sqrt(dt) );
         for (int i = 0; i < m; i++) {
@@ -231,24 +228,25 @@ BinomialTree::BinomialTree (Option opt, int n) {
             nodes[i] = p.update_rule(exp(-r*dt) * nodes[i], exp(-r*dt) * nodes[i+1], S);
         }
     }
-    if (update_price) { price = nodes[0]; }
-    return nodes[0];
+    price = nodes[0];
+    delete[] nodes;
+    return price;
 }</code></pre>
-        <p>Finally, tree pricing of options is susceptible to oscillations depending on whether \(N\) is even or odd. For more details, refer to <a href="../mfcm4/index.html" title="Binomial tree: convergence">Binomial tree: convergence</a>. An easy way to make the price converge much faster is to average the prices computed by taking \(N\) and \(N+1\) steps. This is what the compute_averaged_price() function does:</p>
+        <p>Finally, tree pricing of options is susceptible to oscillations depending on whether \(N\) is even or odd. For more details, refer to <a href="../mfcm4/index.html" title="Binomial tree: convergence and oscillations">Binomial tree: convergence and oscillations</a>. An easy way to make the price converge much faster is to average the prices obtained from \(N\) and \(N+1\) step trees. This is what the compute_averaged_price function does:</p>
 <pre><code>double BinomialTree::compute_averaged_price() {
     /*
     Computes the even-odd averaged price, for a given N outputs the averaged value of N and N+1 layers.
     */
-    double price1 = compute_price(false);
+    double price1 = compute_price();
     set_N(N+1);
-    double price2 = compute_price(false);
+    double price2 = compute_price();
     set_N(N-1);
     price = 0.5 * (price1 + price2); 
     return price;
 }</code></pre>
         <h3>Examples</h3>
         <hr>
-        <p>Here is an example use case, pricing at-the-money call and put options for European and American exercise styles. The parameters are as follows: \((S_0,K,T,r,d,\sigma,N) = (100,100,1,0.05,0,0.2,1000)\).</p>
+        <p>Here is an example use case, pricing at-the-money call and put options for European and American exercise styles. The parameters are as follows: \(S_0=100\), \(K=100\), \(T=1\), \(r=0.05\), \(d=0\), \(\sigma=0.2\), \(N=1000\).</p>
         <p><b>Input:</b></p>
 <pre><code>Option opt = Option();
 BinomialTree bt = BinomialTree(opt, 1000);
