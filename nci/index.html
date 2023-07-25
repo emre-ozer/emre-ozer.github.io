@@ -91,7 +91,10 @@
     return m</code></pre></blockquote>
         <p>Using this, we can choose a simple test function, say \(\sin(x)\), and an interval, say \([0,\pi]\), and integrate using Newton-Cotes to different orders and see the jumps as the error order is increased.</p>
         <p>Below I have plotted the error as a function of the step size, for different orders of the Newton-Cotes method. The order is denoted \(m\), with \(m=2,3\) the trapezium and Simpson rules. Note the logarithmic scale on the error axis.</p>
-        <img src="test1.svg" width="35%">
+        <figure>
+            <img src="test1.svg" style="max-width:500px;width:100%">
+        </figure>
+        
         <p>We see that, as expected from theory, the error orders are grouped up in pairs. It would be interesting to compute the exact error coefficient and compare the error bound to the actual error for different types of functions.</p>
         <h3>Test 2: Runge's phenomenon</h3>
         <hr>
@@ -101,7 +104,7 @@
         $$</div>
         <p>called the Runge function. Immediately, the analytic properties of this function is clearly different than the previous example \( sin(x) \). Namely, this function has poles at \(x = \pm i / 5\). This may not seem relevant, after all we are considering real integrals. However, the complex analytic properties of a function is extremely relevant, as the radius of convergence of the Taylor series will be crucial in what follows.</p>
         <p>Let's first do a numerical experiment, and integrate the Runge function over the interval \([-1,1]\) and plot the error as a function of Newton-Cotes order. And to be extra cautios, let's also consider different values of \(N\). The result is plotted below.</p>
-        <img src="test2.svg" width="60%">
+        <img src="test2.svg" style="max-width:600px;width:100%">
         <p>Note again the logarithmic scale on the error axis. We see, for all values of \(N\) considered above, that the error starts growing with order at large orders. Increasing \(N\) delays the order after which the error starts to grow, but doesn't prevent it.</p>
         <p>So, what went wrong with our theory? Nothing! The theory says the error at order \(n\) over interval \([a,b]\) is bounded by:</p>
         <div class="equation">$$
@@ -145,11 +148,11 @@ def lagrange_basis(x, j, nodes):
     return l</blockquote></pre></code>
     </body>
     <p>Below is a test case, where the function \(\sin(10x)\) is interpolated in the interval \([0,\pi]\) with \(N\) number of equidistant nodes, for various values of \(N\). The function is plotted in blue, and the interpolating polynomial in red.</p>
-    <img src="lagtest1.svg" width="60%">
+    <img src="lagtest1.svg" style="max-width:600px;width:100%">
     <p>This shows a general characteristic, where as \( N \) is increased the interpolating polynomial starts to take on very large values inbetween the nodes to match the highly oscillatory parts of the function. Nevertheless, given enough nodes (in this case around 35, the interpolating polynomial matches with the function almost perfectly. This is guaranteed by the fact that \(\sin(z)\) in an entire function on the complex plane.</p>
     <p>For comparison, let's consider the Runge function on the interval \([-1,1]\). We already know Newton-Cotes methods diverge at large order, which implies the interpolating polynomials don't converge to the function even for large number of nodes. This is evident from the plot:</p>
-    <img src="lagtest2.svg" width="60%">
+    <img src="lagtest2.svg" style="max-width:600px;width:100%">
     <p>Here is the poynomial for \(N = 100\) equidistant nodes, just for fun:</p>
-    <img src="lagtest3.svg" width="50%">
+    <img src="lagtest3.svg" style="max-width:600px;width:100%">
     </article>
 </html>

@@ -33,7 +33,7 @@
         <p>First, we will look at the simpler type of oscillation: even-odd oscillation. This is simply the statement that tree prices for even and odd \(N\) follow different trends (they look independent). This is evident at the small \(N\) case, so let us consider a call option with \(N \in \{4,5,\ldots,49\}\). Let us also consider the even-odd averaged price, that is, the price obtained by taking the averaged prices of \(N\) and \(N+1\) layer trees.</p>
         <figure>
             <img src="plot1.svg" style="max-width:800px;width:100%" alt="Figure 1: At-the-money call (left) and (put) option price errors as functions of N. Blue dots are single \(N\) layer prices, red dots are average prices of \(N\) and \(N+1\) layers.">
-            <figcaption>Figure 1: At-the-money call (left) and (put) option price errors as functions of N. Blue dots are single \(N\) layer prices, red dots are average prices of \(N\) and \(N+1\) layers.</figcaption>
+            <figcaption>Figure 1: At-the-money call (left) and put (right) option price errors as functions of N. Blue dots are single \(N\) layer prices, red dots are average prices of \(N\) and \(N+1\) layers.</figcaption>
         </figure>
         <p>Even-odd oscillations are evident: one curve corresponds to odd values of \(N\), and the other to even \(N\). It is important to note how quickly the tree price converges to the analytic price for an at-the-money option: even at \(N\sim 50\), the error is of order \(\mathcal{O}(10^{-3})\), less than one percent.</p>
         <p>Intuitively, it makes sense that there exists such even-odd oscillations, as the final layer can either include the strike price or not depending on the number of final nodes.</p>
@@ -49,7 +49,7 @@
         <p>We repeat the same analysis, for \(N = 100,101,\ldots,1000\). Again, we consider both put and call options. Both types of oscillations are evident from the plot:</p>
         <figure>
             <img src="plot3.svg" style="max-width:800px;width:100%" alt="Figure 3">
-            <figcaption>Figure 3: Slightly in/out-of-money \((S=120,\,K=100)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+            <figcaption>Figure 3: Slightly in/out-of-money \((S=120,\,K=100)\) call (left) and put (right) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
         </figure>
         <p>There are a couple features of interest: firstly, the large-\(N\) oscillation frequency is significantly greater than the at-the-money case. Secondly, the call option converges much faster than the at-the-money call, and the put option converges much slower than the at-the-money put. This can be attributed to the fact that, since \(S>K\), the call option payoff is much more densely populated whereas the put option payoff is zero for a big fraction of nodes. We expect to see the exact opposite behaviour between calls and puts for the \(S < K\) case.</p>
         <p>There is another very interesting property that might lend itself to analytic analysis: consider the envelope surrounding the oscillations. The peaks located above zero (set of local maxima) seem to decay as a power-law - that is, the amplitude of oscillations seems to decay as a power-law. To get a better look, let us consider the log-log plot:</p>
@@ -69,7 +69,7 @@
         <p>A very similar pattern to the previous case emerges, but as expected the call price converges much more slowly and the put price more rapidly.</p>
         <figure>
             <img src="plot5.svg" style="max-width:800px;width:100%" alt="Figure 6">
-            <figcaption>Figure 5: Slightly in/out-of-money \((S=80,\,K=100)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+            <figcaption>Figure 5: Slightly in/out-of-money \((S=80,\,K=100)\) call (left) and put (right) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
         </figure>
         <figure>
             <img src="plot6.svg" style="max-width:800px;width:100%" alt="Figure 6">
@@ -80,7 +80,7 @@
         <p>This is an interesting case which is qualitatively different from the previous cases. The oscillations aren't centered around zero, but approach zero from below.</p>
         <figure>
             <img src="plot7.svg" style="max-width:800px;width:100%" alt="Figure 7">
-            <figcaption>Figure 7: Far in/out-of-money \((S=200,\,K=100)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+            <figcaption>Figure 7: Far in/out-of-money \((S=200,\,K=100)\) call (left) and put (call) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
         </figure>
         <figure>
             <img src="plot8.svg" style="max-width:800px;width:100%" alt="Figure 8">
@@ -92,7 +92,7 @@
         <p>Similar to the previous case with the call and put convergence rates reversed.</p>
         <figure>
             <img src="plot9.svg" style="max-width:800px;width:100%" alt="Figure 9">
-            <figcaption>Figure 9: Far in/out-of-money \((S=100,\,K=200)\) call (left) and (put) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
+            <figcaption>Figure 9: Far in/out-of-money \((S=100,\,K=200)\) call (left) and put (right) option price errors as functions of N. Non-averaged prices shown in blue, averaged prices shown in red.</figcaption>
         </figure>
         <figure>
             <img src="plot10.svg" style="max-width:800px;width:100%" alt="Figure 10">

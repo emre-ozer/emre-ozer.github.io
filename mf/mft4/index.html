@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>American options with trees</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+<article class="content">
+        <h2>American options with trees</h2><hr>
+        <p>Tree implementation: <a href="../mfcm3/index.html">https://emre-ozer.github.io/mf/mfcm3/index.html</a></p>
+        <p>This is a quick study of how early exercise features affect vanilla option prices. We focus on European and American call and put options, and consider their prices as functions of the dividend rate, spot and expiry.</p>
+        <h3>Theory: qualitative features</h3>
+        <hr>
+        <p>Here are some theoretical results:</p>
+        <ol>
+            <li><p>An American option is worth at least as much as a European option with the same parameters, as it carries all the rights of a European option:</p>
+            <div class="equation">
+                $$
+                \text{American option price} \geq \text{European option price}.
+                $$
+            </div>
+            </li>
+            <li><p>For non-dividend paying underlyings, the American and European call option prices are exactly equal. To see this, consider the following no-arbitrage argument. Let \(S_t\) be a non-dividend paying stock, \(Z_t\) a zero-coupon bond maturing at time \(T\) and \(C_t\) a vanilla call option struck at \(K\) with maturity \(T\). Consider a portfolio of 1 unit of call option and K units of zero-coupon bonds. At \(t=T\), the value of the portfolio is:</p>
+            <div class="equation">
+                $$
+                C_T + K Z_T = (S_T - K)_{+} + K \geq S_T.
+                $$
+            </div>
+            <p>Hence, by no-arbitrage monotonicity theorem we must have that for any \(t \in [0,T]\), that</p>
+            <div class="equation">
+                $$
+                C_t + K Z_t \geq S_t \quad \Leftrightarrow \quad C_t \geq S_t - K Z_t.
+                $$
+            </div>
+            <p>For positive interest rates, we have \(Z_t \lt 1\) and so for \(t \in [0, T)\):</p>
+            <div class="equation">
+                $$
+                C_t \gt S_t - K.
+                $$
+            </div>
+            <p>That is, a call option on a non-dividend paying underlying is always worth more than its intrinsic value. Therefore, it is never optimal to exercise such an option early.</p>
+            </li>
+            <li><p>What happens when dividends are introduced? We can answer this qualitatively as follows: consider a call option on a dividend paying stock. The dividend payments may make it more profitable to exercise early, as the earlier the option is exercised, the more the dividend payments. And so, we would expect the price difference between European and American call options to increase as the dividend rate is increased (with everything else held constant).</p>
+            <p>On the other hand, the opposite argument would suggest the put price differences between European and American options should be decreasing as a function of dividend rate. Early exercise becomes less preferable as we would be foregoing on more dividend payments by selling the stock earlier.</p>
+            <p>As a final comment, I should mention that it is not the dividend rate itself that matters, but the its value with respect to the interest rate. This should make intuitive sense, as the dividend rate governs the riskless profit provided by the equity, and the interest rate governs the riskless profit provided by the money market account.</p>
+            </li>
+        </ol>
+        <h3>Observations</h3>
+        <hr>
+        <p>For all of the following, I fix the number of time steps to \(N=500\), and always compute the even-odd averaged tree price. For European options, I use the analytic prices.</p>
+        <h4>Part 1: dividend rate</h4>
+        <p>We consider first the at-the-money case.</p>
+        <figure>
+            <img src="american_plot1.svg" style="max-width:1000px;width:100%" alt="Figure 1">
+            <figcaption>Figure 1: At-the-money \((S=K=100)\) American and European call (left) and put (right) option prices as a function of the ratio of dividend and interest rates \(d/r\). The remaining parameters are fixed to \(r=0.05, T=1, \sigma =0.2.\)</figcaption>
+        </figure>
+        <p>As expected, at \(d=0\) the European and American call prices match, with their difference increasing as a function of \(d/r\). The opposite trend is observed for the put option, with the greatest price discrepancy at \(d=0\).</p>
+        <p>Let us now consider the case \(K \lt S\).</p>
+        <figure>
+            <img src="american_plot2.svg" style="max-width:1000px;width:100%" alt="Figure 2">
+            <figcaption>Figure 2: In/out-the-money \((S=100, \; K=80)\) American and European call (left) and put (right) option prices as a function of the ratio of dividend and interest rates \(d/r\). The remaining parameters are fixed to \(r=0.05, T=1, \sigma =0.2.\)</figcaption>
+        </figure>
+        <p>The put option prices converge, although a slight difference can still be observed at \(d=0\). The call option price displays a qualitatively different trend: after some dividend rate (around \(d \approx 0.75 r\)), it becomes more profitable to immediately exercise the option (as it is worth 20 at \(t=0\)), and so the price saturates at the initial intrinsic value.</p>
+        <p>Finally, consider the \(S \lt K\) case.</p>
+        <figure>
+            <img src="american_plot3.svg" style="max-width:1000px;width:100%" alt="Figure 3">
+            <figcaption>Figure 3: Out/in-the-money \((S=100, \; K=120)\) American and European call (left) and put (right) option prices as a function of the ratio of dividend and interest rates \(d/r\). The remaining parameters are fixed to \(r=0.05, T=1, \sigma =0.2.\)</figcaption>
+        </figure>
+        <p>The opposite trend to the case before is observed: call prices converge and the put price saturates at \(K-S = 20\) below some dividend rate \(d \approx 1.25r\).</p>
+        <h4>Part 2: time to expiry</h4>
+        <p>Now, consider the call and put prices as a function of time to expiry \(T\). We expect the American options to be monotonically increasing in \(T\) since more time simply gives the holder more early exercise opportunities. The same cannot be said about European type options. Finally, we expect the American and European prices to converge as \(T\to 0\) as the early exercise opportunities disappear. This is indeed what is observed for at-the-money options.</p>
+        <figure>
+            <img src="american_plot4.svg" style="max-width:1000px;width:100%" alt="Figure 4">
+            <figcaption>Figure 4: At-the-money \((S=100, \; K=100)\) American and European call (left) and put (right) option prices as a function of the time to expiry. For the put option, the dividend rate is \(d=0\), whereas for the call it is \(d=0.05\). The remaining parameters are fixed to \(r=0.05, \sigma =0.2.\)</figcaption>
+        </figure>
+        <h4>Part 3: spot</h4>
+        <p>In this part, we plot American and European call and put option prices as a function of the spot. We also plot the payoff (intrinsic value). We expect to see the American option prices to be greater than the payoff at all values of spot, as if the payoff were to exceed the price there would be an arbitrage opportunity through immediate exercise. The European options are not subject to such bounds.</p>
+        <figure>
+            <img src="american_plot5.svg" style="max-width:1000px;width:100%" alt="Figure 5">
+            <figcaption>Figure 5: American and European call (left) and put (right) option prices as a function of the spot. For the put option, the dividend rate is \(d=0\), whereas for the call it is \(d=0.1\). The remaining parameters are fixed to \(r=0.05, T=1, \sigma =0.2.\)</figcaption>
+        </figure>
+</article>
+</body>    
+</html>

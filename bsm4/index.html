@@ -26,7 +26,10 @@
         $$</div>
         <p>Although the integral doesn’t exist, the principal value integral does as defined above. To avoid the simple pole at \(x = 0\) is to take some suitable analytic continuation of \(f(x)\) in some nice enough domain of the complex plane which includes \((−a,b)\). We can shift the pole into the imaginary axis through \(1/(x \pm i\epsilon)\) in the limit \(\epsilon \to 0\). Alternatively, we can skip over the pole by some contour that goes over or under the pole. The key point is that these two methods are equivalent.</p>
         <p>Wlog consider the shift\(1/(x + i\epsilon)\) and a contour \(\gamma_0\) skipping over the pole:</p>
-        <img src="fig.png" alt="Figure showing the shifted pole and the contour." width="60%">
+        <figure>
+            <img src="fig.png" alt="Figure showing the shifted pole and the contour." style="max-width:600px;width:100%">
+        </figure>
+        
         <p>The way to see that these two integrals are equal is to close these contours either from above by some contours \(\gamma_+ \) or from below by some contour \(\gamma_- \) such that \( f \) can be analytically continued within the closed region. If the contour \( \gamma_0 \) is closed from above, the result is</p>
         <div class="equation">$$
         \oint \frac{f(z)}{z} d z=\int_{\gamma_{+}} \frac{f(z)}{z} d z+\int_{\gamma_{0}} \frac{f(z)}{z} d z=2 \pi i \sum_{k} \operatorname{Res}\left(\frac{f(z)}{z} ; z_{k}\right).
