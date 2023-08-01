@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Jump-diffusion models</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+<article class="content">
+        <h2>Jump-diffusion models</h2><hr>
+        <p><i>Reference: JOSHI, M. (2003). The Concepts and Practice of Mathematical Finance. (1), Cambridge University Press.</i></p>
+        <h3>Motivation</h3>
+        <hr>
+        <p>Jump-diffusion models are an improvement over the regular diffusive model of Black-Scholes, which incorporates sudden stock movements (crashes) in the form of discontinuous jumps. One of the main shortcomings of the Black-Scholes model is absence of smiles - in/out-of-money options have the same implied volatility (by construction), as the process followed by the stock always follows a fixed (perhaps time-dependent) volatility. It provides unique prices as one can replicate (or hedge) an option perfectly.</p>
+        <p>In jump-diffusion models, the presence of jumps changes this behaviour: one can no longer perfectly hedge across a jump as one would have no prior knowledge of when jumps will occur. There are no unique prices.</p>
+        <p>Why do jumps produce smiles? This could be understood by viewing option as insurance: there is high demand for slightly out of the money put options as investors want short term protection against market crashes. Banks selling put option are taking on the risk of a crash and the market price reflects the risk tolerance of the banks. This highlights one of the key points of options pricing: in the absence of a unique price, the market chooses the measure which reflects its risk tolerance. We will make the connection to a measure choice more precise.</p>
+        <p>To model jumps in a continuous setting, we need to choose first a discrete distribution for the jump occurrence. It makes sense to choose one such that the mean number of jumps occurring in time interval of length \(t\) is proportional to \(t\). Also, it makes sense to require that the probability of a jump is independent from the number of jumps previously occured (no memory). This leads us to the Poisson distribution.</p>
+        <h3>Poisson distribution</h3>
+        <hr>
+        <p>Suppose we specify the mean rate of occurrence of an event, say \(\lambda\). That is, the expectation value of the number of events occurring in time \(t\) is \(\lambda t\). The Poisson distribution describes the probability that exactly \(k\) events will occur in a given time interval.</p>
+        <p>To obtain the probability distribution, we can make use of the binomial distribution as follows: the probability of \(k\) events of probability \(p\) occurring out of \(n\) trials is</p>
+        <div class="equation">
+            $$
+            \mathcal{B}(k; p, n) = \frac{n!}{k!(n-k)!} p^k (1-p)^{n-k}.
+            $$
+        </div>
+        <p>In our case, we don't have a specified number of trial but a fixed mean of \(\lambda t\). So, we can fix \(n p = \lambda t\) and take the limit \(n\to\infty\):</p>
+        <div class="equation">
+            $$
+            \lim_{n\to\infty}\mathcal{B}(k; p, n)\bigg|_{p = \lambda t / n} = \frac{n^k}{k!} \left(\frac{\lambda t}{n}\right)^k  \left(1 - \frac{\lambda t}{n}\right)^{n-k} = \frac{(\lambda t)^k}{k!} e^{-\lambda t} \equiv \mathcal{P}(k; \lambda t).
+            $$
+        </div>
+        <p>This is the <i>Poisson distribution.</i> The probability that no event occurs in interval \([0,T]\) is \(e^{-\lambda T}\).</p>
+        <h3>Geometric Brownian motion with jumps</h3>
+        <hr>
+        <p>Let us propose that the stock evolves with geometric Brownian motion with superimposed jumps:</p>
+        <div class="equation">
+            $$
+            \frac{dS_t}{S_t} = \mu dt + \sigma dW_t + (J-1)dN(t),
+            $$
+        </div>
+        <p>where \(J\) is a random variable describing the jump-size distribution, and \(N(t)\) is the number of Poisson jumps up to time \(t\). More precisely, \(N(t)\) is a random variable taking on integer values s.t. for all \(f\):</p>
+        <div class="equation">
+            $$
+            \mathbb{E}[f(N(t))] = \sum_{j=0}^{\infty} e^{-\lambda t} \frac{(\lambda t)^j}{j!} f(j).
+            $$
+        </div>
+        <p>In a distributional sense, we may write \(N(t) \sim \mathcal{P}(\lambda,t)\). By the differential \(dN\), we really mean the induced differential \(dN(t) = N(dt)\).</p>
+        <p><b>Martingale property:</b> as before, to obtain a risk-neutral measure we demand \(S/B\) be a martingale. There is a small subtlety, however; as we have superimposed discrete jumps on the underlying diffusive provess, we should take the expectation with respect to the jump-size and occurrence. That is, we require \(\mathbb{E}_{\text{jumps}}[S/B]\) to be a driftless.</p>
+        <div class="equation">
+            $$
+            d\left(\frac{S}{B}\right) = \frac{S}{B}\left( \mu dt + \sigma dW + (J-1) dN(t) - r dt \right).
+            $$
+        </div>
+        <p>We know that the Poisson distribution has mean \(\lambda dt\), and so \(\mathbb{E}[dN(t)] = \lambda dt\). Hence,</p>
+        <div class="equation">
+            $$
+            \mathbb{E}_{\text{jumps}}[S/B] = \frac{S}{B}\left( \mu + \lambda \mathbb{E}_{J}[J-1] - r \right) dt + \frac{S}{B} \sigma dW.
+            $$
+        </div>
+        <p>The risk-neutral process for \(S\) therefore has drift:</p>
+        <div class="equation">
+            $$
+            \mu = r - \lambda \mathbb{E}_J[J-1].
+            $$
+        </div>
+        <p>An arbitrage-free price for a European option \(O\) with expiry \(T\) is obtained by computing</p>
+        <div class="equation">
+            $$
+            e^{-rT}\mathbb{E}[O(S_T)],
+            $$
+        </div>
+        <p>where \(S_T\) is evolved with drift \(r-\lambda\mathbb{E}_J[J-1]\) and the superposed Poisson jumps.</p>
+        <p><b>Claim (Ito's lemma for Poisson driven processes):</b> Let \(X_t\) be driven with a Poisson proceess and drift:</p>
+        <div class="equation">
+            $$
+            dX_t = \mu_t dt + g_t dN_t.
+            $$
+        </div>
+        <p>Ito's lemma for such a process reads:</p>
+        <div class="equation">
+            $$
+            df(X_t) = \mu_t f'(X_t) dt + \left[f(X_{t_-} + g_t) - f(X_{t_-})\right] dN_t.
+            $$
+        </div>
+        <p>Of course, any additional stochastic terms (such as Brownian motion) will be orthogonal to the Poisson term (that is, there will be no Ito terms). I will not provide the proof for this here.</p>
+        <p>Let us compute the process for \(\log S_T\). In our case, we let \(g_t = S_t(J-1)\) and \(f = \log\). The Poisson term becomes:</p>
+        <div class="equation">
+            $$
+            d(\log S_T) \supset \left( \log(S_T - (J-1)S_T) - \log(S_T) \right) dN_t = \log (J) dN_t.
+            $$
+        </div>
+        <p>Hence,</p>
+        <div class="equation">
+            $$
+            d(\log S_T) = \left( \mu - \frac{1}{2}\sigma^2 \right)dt + \sigma dW + \log (J) dN_t.
+            $$
+        </div>
+        <p>Integrating yields</p>
+        <div class="equation">
+            $$
+            \log S_T = \log S_0 + \left( \mu - \frac{1}{2}\sigma^2 \right)T + \sigma \sqrt{T}\mathcal{N}(0,1) + \sum_{k=0}^{N(T)}\log J_k,
+            $$
+        </div>
+        <p>where \(N(T)\) is Poisson distributed number of jumps in interval \( [0,T]\) and each \(J_k\) are random variables with respect to the jump-size distribution.</p>
+        <p>This form lends itself well to a Monte-Carlo simulation, which can yield results for any arbitrary jump size distributions. We can obtain analytic results for two particular jump-size distributions: fixed size and log-normal.</p>
+        <h3>Single jump-size case</h3>
+        <hr>
+        <p>With some straightforward algebra one obtains:</p>
+        <div class="equation">
+            \begin{align}
+            \log S_T &= \log S_0 + \left( \mu - \frac{1}{2}\sigma^2 \right)T + \sigma \sqrt{T}\mathcal{N}(0,1) + N(T)\log J \\
+            &= \log S_0 + \left( r - \frac{1}{2}\sigma^2 \right)T + \sigma \sqrt{T}\mathcal{N}(0,1) + (\mu - r) T + N(T)\log J \\
+            &= \log\left( S_0 J^{N(T)} e^{(\mu-r)T} \right) + \left( \mu - \frac{1}{2}\sigma^2 \right)T + \sigma \sqrt{T}\mathcal{N}(0,1).
+            \end{align}
+        </div>
+        <p>Notice that the net effect of the jumps is a shift of the initial spot \(S_0\), otherwise everything is identical to the diffusive Black-Scholes case. Let \(BS(S_0,\sigma,r,T,K)\) be the Black-Scholes price of an option. The single-jump amplitude jump-diffusion price is then,</p>
+        <div class="equation">
+            $$
+            \mathbb{E}_{\mathcal{P}}\left[ BS(S_0J^{N(T)} e^{(\mu-r)T},\sigma,r,T,K) \right] = \sum_{k=0}^\infty e^{\lambda T} \frac{(\lambda T)^k}{k!} BS(S_0J^{k} e^{(\mu-r)T},\sigma,r,T,K)
+            $$
+        </div>
+        <h3>Log-normal jump distribution case</h3>
+        <hr>
+        <p>Suppose \(J \sim m \exp(-\frac{1}{2}\nu^2 + \nu Z)\) with \(Z \sim \mathcal{N}(0,1)\). Then,</p>
+        <div class="equation">
+            \begin{align}
+            \sum_{k=0}^{N(T)} \log J_k &= \sum_{k=0}^{N(T)} \left(-\frac{1}{2}\nu^2 + \nu Z_k \right) + N(T) \log m \\
+            &= -\frac{1}{2} N(T) \nu^2 + N(T) \log m + \sum_{k=0}^{N(T)} \nu Z_k.
+            \end{align}
+        </div>
+        <p>The key point here is that the sum of normally distributed random variables combine into a single normal distributed random variable, and the expression for \(\log S_T\) for a fixed \(N(T)\) therefore simplifies to:</p>
+        <div class="equation">
+            $$
+            \log S_T \bigg|_{N(T)}= \log S_0 + \left(\mu - \frac{1}{2}\sigma^2\right) T + \sqrt{\sigma^2 T + N(T)\nu^2} \mathcal{N}(0,1) + N(T) \log m - \frac{1}{2} N(T) \nu^2.
+            $$
+        </div>
+        <p>This can be written suggestively as:</p>
+        <div class="equation">
+            $$
+            \log S_T \bigg|_{N(T)}= \log \left(S_0 m^{N(T)} e^{(\mu-r)T}\right) + \left(r - \frac{1}{2}\left[\sigma^2 + \frac{N(T)\nu^2}{T}\right] \right) T + \sqrt{\sigma^2 + \frac{N(T)\nu^2}{T}}  \sqrt{T} \mathcal{N}(0,1),
+            $$
+        </div>
+        <p>which is the Black-Scholes price with shifted spot \(S_0 m^{N(T)} e^{(\mu-r)T}\) and volatility \(\sqrt{\sigma^2 + N(T)\nu^2/T}\). The price of the option is given by the Poisson expectation of this:</p>
+        <div class="equation">
+            $$
+            O_T = \sum_{k=0}^\infty \frac{e^{-\lambda T} (\lambda T)^k}{k!} BS(S_k, \sigma_k, r, T, K),
+            $$
+        </div>
+        <p>where \(S_k = S_0 m^k e^{(\mu-r)T}\) and \(\sigma_k = \sqrt{\sigma^2 + k\nu^2/T}\)</p>
+        <h3>Market incompleteness</h3>
+        <hr>
+        <p>In the Black-Scholes model, we saw that through Girsanov's theorem one could only change the drift of the stochastic process to obtain an equivalent measure. This is related to the fact that a Brownian motion, in any realization, has second (quadratic) variation \(T\) over the inverval \([0,T]\) with probability \(1\).</p>
+        <p>Recall that the quadratic variation of a function is:</p>
+        <div class="equation">
+            $$
+           \lim_{n\to\infty} \sum_{i=0}^{n-1} | f(t_{i+1}) - f(t_i) |,
+            $$
+        </div>
+        <p>where \((t_0, t_1,\dots,t_{n})\) is a partition over the interval of interest with the limit such that the supremum of the partition sizes approaches zero.</p>
+        <p>Returning to stock movements, given any particular realisation of a path one can infer what \(\sigma\) is through the second variation of the path, hence recovering a unique arbitrage free price.</p>
+        <p>With jump-diffusion models, the story is different however. Lucky and unlucky paths occur depending on the number of jumps, and there is no way to read off a unique \(\lambda\). Any choice of \(\lambda(t)\) will yield a different risk-neutral measure and so we have an uncountably infinite number of prices.</p>
+        <p>Before we go on to answer how to deal with this, let us recover a lower bound on the price for convex payoff options.</p>
+        <h3>Sub-replication and previsibile functions</h3>
+        <hr>
+        <p>Recall the definition for a self-financing portfolio: suppose we have a portfolio of \(\alpha\) stocks and \(\beta\) riskless bonds. This is said to be a self-financing portfolio if the change in the portfolio's value (in time) equals:</p>
+        <div class="equation">
+            $$
+            d(\alpha S + \beta B) = \alpha dS + \beta dB.
+            $$
+        </div>
+        <p>Note that this doesn't mean that \(\alpha\) and \(\beta\) are held fixed - that would be very limiting. It means, whatever functions \(\alpha\) and \(\beta\) are, they are such that</p>
+        <div class="equation">
+            $$
+            S d\alpha + B d\beta = 0.
+            $$
+        </div>
+        <p>Hopefully this is clear from the first equation.</p>
+        <p>Now that we are dealing with discontinuous jumps, we need to be more careful about determining which functions \(\alpha\) and \(\beta\) are admissable, as clearly they cannot be functions of time in the usual sense as one should not be able to be peerfectly hedged against jumps by construction. Equivalently, we need to express mathematically the condition that the replicating portfolio does not know about when jumps occur.</p>
+        <p>The underlying problem is due to the fact that if a jump occurs at \(t = \tau\), then we have</p>
+        <div class="equation">
+            $$
+            S_\tau \neq \lim_{t \to \tau_{-}} S_t.
+            $$
+        </div>
+        <p>The solution to our problems now becomes clear: the functions \(\alpha, \beta\) should not have access to \(S_t\) for all \(t\), as this provides jump-time information. Instead, we choose <i>previsible</i> functions by letting</p>
+        <div class="equation">
+            $$
+            \alpha = \alpha (t, S_{t_-}), \quad \beta = \beta(t, S_{t_-}).
+            $$
+        </div>
+        <p><b>Claim:</b> suppose stock \(S\) follows a jump-diffusion process. No arbitrage price of any vanilla option on \(S\) with <i>convex</i> payoff is <i>greater than</i> the price obtained by taking no jumps.</p>
+        <p><i>Proof:</i> the price of the option is a convex function of spot in the Black-Scholes world. Let \(C_{\text{BS}}(t,S_t)\) denote the Black-Scholes price. Continuous hedging strategy is to set up a portfolio worth initially \(C_{\text{BS}}(0, S_0)\) and at any given time hold \(\partial C_{\text{BS}}/\partial S\) units of stock and rest in bonds. Without jumps, this portfolio replicates the option perfectly.</p>
+        <p>The key point here is that the value of this delta-hedged portfolio at any given time as a function of \(S\) equals the <i>tangent</i> line (on the \(S\)-price plane) through the point \( (S_t, C_{\text{BS}}(t,S_t) )\).</p>
+        <p>Convexity implies that any jump will make the delta-hedged portfolio worth less than the option, since the admissable functions of the self-financing portfolio are previsible. Therefore, the portfolio set up at cost \(C_{\text{BS}}(0,S_0)\) is worth less than the payoff at expiry if any jumps occur in the interval \([0,T]\). QED.</p>
+        <h3>Choosing the measure and model calibration</h3>
+        <hr>
+        <p>We saw above that the model is that of an incomplete market, and in fact there were ean uncountably infinite number of measures. However, options do have unique (more or less) market prices: the market chooses the measure. One can fit the observed prices to a jump-diffusion model and determine which \(\lambda, \sigma\) are implied. A speculator might then assess whether the market is pricing the risk correctly, and trade accordingly.</p>
+        <p>This is not the end of the story, as the occurence of a crash or a jump can change the market's optinion on \(\lambda, \sigma\) and can therefore change the measure itself. Such markets are said to be <i>fickle</i>.</p>
+        <p>Hence, one cannot hedge perfectly even if one uses stocks, options and bonds, without a perfect model of how the market would react to jumps. The measure keeps changing!</p>
+        <p>If one prices with a jump-diffusion model, and traslate back to Black-Scholes implied volatilities, one can reproduce smiles. One would then like to find a fit \(\lambda(t)\) that matches smiles for options of all maturities. This is called <i>model calibration</i>.</p>
+</article>
+</body>    
+</html>
