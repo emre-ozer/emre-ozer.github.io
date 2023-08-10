@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css"></link>
+        <link rel="stylesheet" href="../../style.css">
+        </link>
+        <title>Jump diffusion models: C++ implementation</title>
+    </head>
+    <body>
+        <h1><a class="head" href="../../index.html">emre-ozer.github.io</a></h1>
+<article class="content">
+        <h2>Jump-diffusion models: C++ implementation</h2><hr>
+        <p><i>Reference: <a href="../mft5/index.html">Jump-diffusion models.</a></i></p>
+        <p>Github repository: <a href="https://github.com/emre-ozer/mathematical-finance/tree/main/jump_diffusion">https://github.com/emre-ozer/mathematical-finance/tree/main/jump_diffusion</a></p>
+        <h3>Outline</h3>
+        <hr>
+        <p>For this project, we focus on a jump-diffusion model with log-normally distributed jumps of the form \(J \sim m \exp(-\frac{1}{2}\nu^2 + \nu Z)\) with \(Z \sim \mathcal{N}(0,1)\). Here is a rough outline:</p>
+        <ul>
+            <li>Implement an analytic pricer for vanilla options.</li>
+            <li>Implement Monte-Carlo pricer and check that it matches the analytic one.</li>
+            <li>Implement a function to numerically compute the implied volatility, using Netwon's method.</li>
+            <li>Plot the implied volatility as a function of strike - observe smiles.</li>
+            <li>Plot the price of a vanilla call option as a function of jump intensity \(\lambda\).</li>
+        </ul>
+        <h3>Part 1: analytic and Monte-Carlo pricers</h3>
+        <hr>
+        <p>Let us recall the analytic price:</p>
+        <div class="equation">
+            $$
+            \sum_{n=0}^{\infty} \frac{e^{-\lambda T} (\lambda T)^n}{n!} BS(S_n, \sigma_n, r, T, K),
+            $$
+        </div>
+        <p>where \(S_n = S_0 m^n e^{(\mu - r) T}\) and \(\sigma_n = \sqrt{\sigma^2 + n\nu^2 / T}\). The risk-neutral measure is:</p>
+        <div class="equation">
+            $$
+            \mu = r - \lambda \mathbb{E}[J-1] = r - \lambda(m - 1),
+            $$
+        </div>
+        <p>where the last equality follows from the log-normal jump distribution.</p>
+        <p>The only non-triviality when implementing this formula in C++ is the infinite sum: we need to choose a cutoff. In my implementation, the cutoff is chosen as a user input however one can also demand an error bound and choose the cutoff accordingly. It shouldn't be too difficult to analytically bound the error on the sum, but I will not embark on such a task.</p>
+        <p>I am choosing to implement the analytic jump-diffusion pricer as a member function of the option class, the details is which is given here <a href="../mfcm3/index.html">Binomial tree: C++ implementation</a>.</p>
+<pre><code>double factorial(int n) {
+    if (n == 0) { return 1; }
+    else {
+        double res = 1;
+        for (int i = 1; i <= n; i++) {
+            res *= i;
+        }
+        return res;
+    }
+}
+
+double Option::analytic_jump_diffusion(double m, double nu, double lam, int cutoff) {
+    /*
+    Returns the analytic jump-diffusion price for log-normal jump distributions. 
+    The jumps are distributed as J \sim m exp(-1/2 nu^2 + nu Z) with Z random normal variable.
+    Only works for options for which there exists an analytic price (currently, only European vanilla call and put are implemented.)
+    Cutoff determines after which term the infinite series is terminated. By default, it is set to 10.
+    */
+    double S_i = S0; // initial spot
+    double vol_i = vol; // initial volatility
+    double mu = r - lam * (m - 1.0); // risk-free rate
+    double sum = 0;
+    for (int n = 0; n <= cutoff; n++) {
+        S0 = S_i * pow(m,n) * exp((mu-r)*T);
+        vol = sqrt(vol_i*vol_i + n*nu*nu/T);
+        sum += exp(-lam*T) * pow(lam*T, n) / factorial(n) * analytic_price();
+    }
+    // restoring initial values
+    S0 = S_i;
+    vol = vol_i;
+    return sum;
+}</code></pre>
+        <p><b>Note on factorial:</b> it is very important to compute the factorial as a double if one wants to set a high cutoff. Since the number of digits grow very fast, integers (or even long long integers) are not enough to store the exact number after about 20!. As we don't need the exact number, the ability to compute higher terms outweighs the loss of precision. I have set the default cutoff to 100, which is good enough for all of the analysis that follows.</p>
+        <p>For the Monte-Carlo implementation, first we need the jump-diffusion evolution:</p>
+        <div class="equation">
+            $$
+            \log S_T = \log S_0 + \left(\mu - \frac{1}{2}\sigma^2\right) T + \sqrt{\sigma^2 T + N(T)\nu^2} W + N(T) \log m - \frac{1}{2} N(T) \nu^2,
+            $$
+        </div>
+        <p>where \(W \sim \mathcal{N}(0,1)\) is normal random, and \(N(T) \sim \mathcal{P}(\lambda; T)\) is Poisson distributed. To draw normal random variables, I use the inverse cumulative distribution.</p>
+        <h4>Monte-Carlo: generating random normal variables</h4>
+        <p>The idea is simple: first, draw a uniform random variable \(X \in [0,1]\) on the unit interval. Then, since the cumulative distribution \(N(x)\) is a non-decreasing function, one has:</p>
+        <div class="equation">
+            $$
+            \mathbb{P}(X \leq N(x)) = \mathbb{P}(N^{-1}(X) \leq x).
+            $$
+        </div>
+        <p>The left hand side is the definition of a variable belonging to the underlying distribution of which \(N(x)\) is the cumulative distribution. Hence, we have reduced the problem to approximating the inverse cumulative normal distribution, for which we refer to the method of Moro. Here is a C++ implementation of the inverse cumulative normal distribution function:</p>
+<pre><code>double moro(double x) {
+    /*
+    Inverse cumulative normal function is defined for x in [0,1]. Below, x denotes the argument of the function. I know the implementation is slow, I will make it faster if it comes to it.
+    */
+    const double a[] =
+    {   2.50662823884,
+        -18.61500062529,
+        41.39119773534,
+        -25.44106049637
+    };
+    const double b[] =
+    {   -8.47351093090,
+        23.08336743743,
+        -21.06224101826,
+        3.13082909833
+    };
+    const double c[] =
+    {   0.3374754822726147,
+        0.9761690190917186,
+        0.1607979714918209,
+        0.0276438810333863,
+        0.0038405729373609,
+        0.0003951896511919,
+        0.0000321767881768,
+        0.0000002888167364,
+        0.0000003960315187
+    };
+    double y = x-0.5;
+    double r;
+    if (fabs(y) < 0.42) {
+        r = y*y;
+        double A = 0;
+        double B = 0;
+        for (int j = 0; j<4; j++) {
+            A += a[j] * pow(r,j);
+            B += b[j] * pow(r,j+1);
+        }
+        return y*A / (B + 1.0);
+    }
+    else {
+        if (y < 0) { r = x; }
+        else { r = 1-x; }
+        double s = log(-log(r));
+        double t = 0;
+        for (int j = 0; j < 9;j++) {
+            t += c[j]*pow(s,j);
+        }
+        if (x > 0.5) { return t; }
+        else { return -t; }
+    }
+}</code></pre>
+        <p>Finally, here is a function that efficiently draws a sample of normally distributed variables, returning them in a vector of doubles:</p>
+<pre><code>vector<double> normal_sample(int N) {
+    /*
+    Given sample size N, generates an N dimensional vector of normally distributed random numbers. Uses the inverse cumulative distribution, approximated by the Moro method.
+    */
+    vector<double> sample;
+    random_device rd;  // Will be used to obtain a seed for the random number engine
+    mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    uniform_real_distribution<double> uni(0.0, 1.0);
+
+    for (int i = 0; i < N; i++) {
+        sample.push_back(moro(uni(gen)));
+    }
+    return sample;
+}</code></pre>
+        <h4>Monte-Carlo: generating Poisson random variables</h4>
+        <p>For this, I refer to a method due to Knuth:</p>
+<pre><code>int poisson_draw(double lam) {
+    random_device rd;  // Will be used to obtain a seed for the random number engine
+    mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    uniform_real_distribution<double> uni(0.0, 1.0);
+    double L = exp(-lam), p = 1.0;
+    int k = 0;
+    do {
+        k += 1;
+        p *= uni(gen);
+    } 
+    while (p > L);
+    return k-1;
+}
+
+vector<int> poisson_sample(double lam, int N) {
+    vector<int> sample;
+    random_device rd;  // Will be used to obtain a seed for the random number engine
+    mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    uniform_real_distribution<double> uni(0.0, 1.0);
+    double L = exp(-lam);
+    double p;
+    int k;
+    for (int i = 0; i < N; i++) {
+        p = 1.0;
+        k = 0;
+        do {
+            k += 1;
+            p *= uni(gen);
+        } 
+        while (p > L);
+        sample.push_back(k-1);
+    }
+    return sample;
+}</code></pre>
+        <p>Note that both this, and the inverse cumulative normal method relies on generating a uniform random number on the interval \([0,1]\). It is very important to generate these random numbers separately, that is not reusing the same uniform random numbers. Otherwise, one would induce non-trivial correlations between the normal and Poisson draws.</p>
+        <p>To complete the Monte-Carlo pricer, one simply takes the discounted expectation of the jump-diffusion process evaluated at the option of interest's payoff. I have implemented this as a separate function which takes as input an Option object, and the parameters defining the jump distribution:</p>
+<pre><code>double jump_diffusion_MC(Option opt, double m, double nu, double lam, int N) {
+    vector<int> P = poisson_sample(lam*opt.T, N);
+    vector<double> W = normal_sample(N);
+    double mu = opt.r - lam*(m-1);
+    double logST;
+    double price = 0;
+    for (int i = 0; i < N; i++) {
+        logST = log(opt.S0);
+        logST += mu*opt.T;
+        logST += -0.5*opt.vol*opt.vol*opt.T;
+        logST += P[i]*log(m);
+        logST += -0.5*nu*nu*P[i];
+        logST += sqrt(opt.vol*opt.vol*opt.T + P[i]*nu*nu)*W[i];
+        price += exp(-opt.r*opt.T)*opt.payoff(exp(logST));
+    }
+    return price / N;
+}</code></pre>
+        <h3>Part 2: implied volatility and smiles</h3>
+        <hr>
+        <p>Let us first recall how Newton's method works: suppose we would like to find an \(\alpha\) s.t. \(f(\alpha) = 0\), where \(f\) is differentiable in a neighbourhood of \(\alpha\). We start with an initial guess \(x_0\) and iterate as follows:</p>
+        <div class="equation">
+            $$
+            x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}.
+            $$
+        </div>
+        <p>To implement this, we will need analytic expressions for \(f\) and \(f'\). In our case, for the implied volatility we set</p>
+        <div class="equation">
+            $$
+            f(\sigma) = \text{Black-Scholes price}(\sigma) - \text{market price}.
+            $$
+        </div>
+        <p>We already have an analytic implementation for the Black-Scholes price, for vanilla European put and call options. We further need to implement its derivative with respect to volatility: vega (or kappa). Here it is as a member function of the Option class:</p>
+<pre><code>double Option::analytic_vega() {
+    double a1 = (log(S0/K) + (r-d+0.5*vol*vol)*T) / (vol*sqrt(T));
+    double a2 = (log(S0/K) + (r-d-0.5*vol*vol)*T) / (vol*sqrt(T));
+    double b1 = -a1/vol + sqrt(T);
+    double b2 = -a2/vol - sqrt(T);
+    try {
+        if (exercise == "european" && contract == "call") {
+            return exp(-d*T)*S0*phi_prime(a1)*b1 - exp(-r*T)*K*phi_prime(a2)*b2;
+        }
+        else if (exercise == "european" && contract == "put") {
+            return exp(-d*T)*S0*phi_prime(a1)*b1 - exp(-r*T)*K*phi_prime(a2)*b2;
+        }
+        else { throw "Unsupported option type"; }
+    }
+    catch (...) {
+        cout << "Option::analytic_vega supports only European put and call options." << endl;
+        exit(-1);
+    }
+}</code></pre>
+        <p>Newton's method is implemented in a straightforward fashion, but one needs to be careful about when to stop iterations. In this case, I hard-coded an upper limit on the number of iterations, as well as a target error bound such that if consecutive points are separated by less than the error bound the iterations are stopped. One can make these parameters user inputs also.</p>
+<pre><code>double Option::implied_volatility(double market_price, double guess) {
+    double vol_i = vol; // store initial volatility
+    int n_guess = 0;
+    double err;
+    do {
+        vol = guess;
+        err = (analytic_price()-market_price) / analytic_vega();
+        guess -= err;
+        n_guess++;
+    } while(abs(err) > 1e-3 || n_guess < 15);
+    vol = vol_i; // restore initial volatility
+    return guess;
+}</code></pre>
+        <h4>Investigating smiles</h4>
+        <p>We restrict ourselves to the following subspace of the stock parameter space:</p>
+        <div class="equation">
+            $$
+            S=100, \quad r = 0.05, \quad \sigma = 0.1, \quad K \in \{50,51,\ldots,200\}, \quad T \in \{0.25,0.5,1,2,4,8\},
+            $$
+        </div>
+        <p>and take \(\nu = 0.1, \, \lambda=0.2, \, m\in\{0.9,1.0\}\) for the jump distribution. We consider European call and put options.</p>
+        <figure>
+            <img src="smile_plot1.svg" style="max-width:600px;width:100%" alt="Figure 1">
+            <figcaption>Figure 1: Call option smiles on jump-diffusion prices for \(m=0.9\).</figcaption>
+        </figure>
+        <figure>
+            <img src="smile_plot2.svg" style="max-width:600px;width:100%" alt="Figure 2">
+            <figcaption>Figure 2: Call option smiles on jump-diffusion prices for \(m=1.0\).</figcaption>
+        </figure>
+        <figure>
+            <img src="smile_plot3.svg" style="max-width:600px;width:100%" alt="Figure 3">
+            <figcaption>Figure 3: Put option smiles on jump-diffusion prices for \(m=0.9\).</figcaption>
+        </figure>
+        <figure>
+            <img src="smile_plot4.svg" style="max-width:600px;width:100%" alt="Figure 4">
+            <figcaption>Figure 4: Put option smiles on jump-diffusion prices for \(m=1.0\).</figcaption>
+        </figure>
+        <p>Firstly, it is clear that the jump-diffusion model is able to produce smiles, at least for log-normally distributed jumps. It should be noted that the jump distribution will affect the shape of smiles, so this analysis is restricted to the log-normal case.</p>
+        <p>Next, one can see that smiles <i>tighten</i> as expiry approaches zero. This qualitatively matches the market observed smiles. Call and put smiles look almost identical. As \(m\) is increased, smiles tighted and their minimum approaches the spot at \(S=100\).</p>
+        <h3>Part 3: varying jump intensity</h3>
+        <hr>
+        <p>In this final section we investigate the jump-diffusion price of vanilla call and put options as a function of the jump intensity \(\lambda\). The parameter subspace we will span is as follows:</p>
+        <div class="equation">
+            $$
+            S = K = 100, \quad r = 0.05, \quad \sigma=0.2, \quad T \in\{0.5,1,2,4\}, \quad m = 0.9, \quad \nu = 0.1, \quad \lambda \in [0,10].
+            $$
+        </div>
+        <p>The results are shown below.</p>
+        <figure>
+            <img src="lambda_plot_call.svg" style="max-width:600px;width:100%" alt="Figure 5">
+            <figcaption>Figure 5: Jump-diffusion price of a call option as a function of jump intensity for various expiry times.</figcaption>
+        </figure>
+        <figure>
+            <img src="lambda_plot_put.svg" style="max-width:600px;width:100%" alt="Figure 6">
+            <figcaption>Figure 6: Jump-diffusion price of a put option as a function of jump intensity for various expiry times.</figcaption>
+        </figure>
+        <p>In both cases, we observe that the price is a monotonically increasing function of \(\lambda\) - that is:</p>
+        <div class="equation">
+            $$
+            \frac{\partial}{\partial \lambda} (\text{Jump-diffusion price}) > 0.
+            $$
+        </div>
+        <p>This is consistent with the sub-replication argument: the Black-Scholes price (\(\lambda = 0\) case) is a lower bound on the price of any option with convex payoff.</p>
+        <p>We further observe that the second derivative is negative - as \(\lambda\) increases, the rate of price increase with respect to \(\lambda\) decreases.</p>
+        <p>It should be noted that at large values of \(\lambda\), the sum converges much slower. Even with a cutoff of 50 is not enough to observe the large \(\lambda\) behaviour for large values of expiry shown above. The cutoff was set to 100 to obtain the data above.</p>
+</article>
+</body>    
+</html>
